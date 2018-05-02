@@ -19,6 +19,9 @@ body,html {
 
 #name {
 	text-shadow: 0px 4px 3px #222, 0px 5px 15px #444, 0px 8px 21px #555;
+	font-size: 6rem;
+	font-weight: 300;
+	line-height: 1.6;
 }
 
 #quote {
@@ -28,4 +31,10 @@ body,html {
 
 .content {
 	padding-top: 15%; 
+}
+
+@media screen and (max-width: 768px) {
+    #name {
+    	font-size: 4rem;
+    }
 }
