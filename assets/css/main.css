@@ -39,6 +39,6 @@ body,html {
 
 @media screen and (max-width: 768px) {
     #name {
-    	font-size: 4rem;
+    	font-size: 3rem;
     }
 }
