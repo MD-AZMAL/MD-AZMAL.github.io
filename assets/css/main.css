@@ -1,43 +1,64 @@
 * {
-	margin: 0;
-	padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
-body,html {
-	height: 100%;
+body,
+html {
+    height: 100%;
 }
 
 #mainBG {
-	background: url(../images/back-2.png);
-	height: 100%;
-	background-size: cover;
-	background-position: center;
-	background-repeat: no-repeat;
-
+    background: url(../images/back-2.png);
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 #name {
-	text-shadow: 0 4px 3px #222, 0 5px 15px #444, 0 8px 21px #555;
-	font-size: 6rem;
-	font-weight: 300;
-	line-height: 1.6;
+    text-shadow: 0 4px 3px #222, 0 5px 15px #444, 0 8px 21px #555;
+    font-size: 6rem;
+    font-weight: 300;
+    line-height: 1.6;
 }
 
 #quote {
-	text-shadow: 0 1px 3px #222, 0 -1px 3px #222, 0 1px 10px #222, 0 -1px 10px #222;
-	font-size: 1.4rem;
+    text-shadow: 0 1px 3px #222, 0 -1px 3px #222, 0 1px 10px #222, 0 -1px 10px #222;
+    font-size: 1.4rem;
 }
 
 .content {
-	padding-top: 15%; 
+    padding-top: 15%;
 }
 
 .no-bg-tron {
-	background: rgba(0,0,0,0);
+    background: rgba(0, 0, 0, 0);
 }
 
 @media screen and (max-width: 992px) {
     #name {
-    	font-size: 2.5rem;
+        font-size: 2.5rem;
     }
+}
+
+.form-control {
+    padding: 15px 15px;
+    border-radius: 5px;
+    border: 1px solid rgba(54, 61, 66, 0.2);
+}
+
+.btn-submit {
+    padding: 10px 30px;
+    margin-bottom: 40px;
+    background: #363D42;
+    border: 1px solid #363D42;
+    color: #fff;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+h5 {
+  color:  rgba(54, 61, 66, 0.842); 
+  margin-bottom: 20px;
 }
