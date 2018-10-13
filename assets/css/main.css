@@ -36,6 +36,16 @@ body,html {
 	background: rgba(0,0,0,0);
 }
 
+.about{
+    background: rgba(0,0,0,0);
+    color: rgb(217, 229, 247);
+    width: 80%;
+    margin-left: 10%;
+}
+.head{
+    color: white;
+    margin: 30px 10%;
+}
 @media screen and (max-width: 992px) {
     #name {
     	font-size: 2.5rem;
