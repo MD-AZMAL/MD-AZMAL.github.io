@@ -7,7 +7,6 @@ body,html {
 	height: 100%;
 }
 
-
 #mainBG {
 	background: url(../images/back-2.png);
 	height: 100%;
@@ -18,14 +17,14 @@ body,html {
 }
 
 #name {
-	text-shadow: 0px 4px 3px #222, 0px 5px 15px #444, 0px 8px 21px #555;
+	text-shadow: 0 4px 3px #222, 0 5px 15px #444, 0 8px 21px #555;
 	font-size: 6rem;
 	font-weight: 300;
 	line-height: 1.6;
 }
 
 #quote {
-	text-shadow: 0px 1px 3px #222, 0px -1px 3px #222,0px 1px 10px #222, 0px -1px 10px #222;
+	text-shadow: 0 1px 3px #222, 0 -1px 3px #222, 0 1px 10px #222, 0 -1px 10px #222;
 	font-size: 1.4rem;
 }
 
