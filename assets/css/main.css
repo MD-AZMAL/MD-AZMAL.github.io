@@ -3,10 +3,37 @@
   padding: 0;
 }
 
+
 body,
 html {
   height: 100%;
 }
+
+.Main-Container-Content{
+	margin: 1rem 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.Main-Container-Content_subtitle{
+	font-weight: bold;
+	width: 100%;
+	padding-left: 1em;
+	font-size: 1.5em;
+}
+
+.Container{
+	width: 80%;
+}
+
+.squareColor{
+	background: rgba(0, 0, 0, 0.6);
+	padding: 1rem;
+}
+
 
 #mainBG {
   background: url(../images/back-2.png);
