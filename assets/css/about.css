@@ -1,0 +1,11 @@
+body
+{
+	background-image: linear-gradient(DarkSlateGray, #DCDCDC, DarkSlateGray);
+	font-family: "Lucida Console", Times, serif;
+}
+
+h3.Main-Container-Content_title
+{
+	font-weight: bold;
+	text-shadow: 2px 2px white;
+}
