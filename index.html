@@ -46,7 +46,7 @@
 		<section id="banner" class="major">
 			<div class="inner">
 				<header class="major">
-					<h1>Hi, my name is Azmal</h1>
+					<h1 id="typeit" style="white-space:nowrap"></h1>
 				</header>
 				<div class="content">
 					<p>A curious developer who loves experimenting<br />
@@ -202,6 +202,18 @@
 	<script src="assets/js/breakpoints.min.js"></script>
 	<script src="assets/js/util.js"></script>
 	<script src="assets/js/main.js"></script>
+	<script src="/assets/js/typeit.min.js"></script>
+	<script>
+		new TypeIt('#typeit', {
+			strings: ['Hi, my name is Azmal', 'Welcome 🙂', 'Contact me below!', 'Have a good day 😄'],
+			breakLines: false,
+			speed: 50,
+			deleteSpeed: 70,
+			nextStringDelay: 900,
+			loop: true,
+			loopDelay: 900
+		});
+	</script>
 
 </body>
 
