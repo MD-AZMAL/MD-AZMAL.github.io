@@ -1474,7 +1474,11 @@ input, select, textarea {
 						#header nav a[href="#menu"]:last-child:before, #header nav a[href="#menu"]:last-child:after {
 							right: 2em;
 						}
-
+		#profile {
+			border-radius: 100px;
+			border: 5px solid #fff;
+		}	
+		
 		#header.reveal {
 			-moz-animation: reveal-header 0.35s ease;
 			-webkit-animation: reveal-header 0.35s ease;
@@ -1622,7 +1626,7 @@ input, select, textarea {
 		-webkit-align-items: center;
 		-ms-align-items: center;
 		align-items: center;
-		background-image: url("https://images2.imgbox.com/34/8f/HmjfzJVX_o.jpg");
+		background-image: url("https://images2.imgbox.com/50/b7/YCi69bKD_o.jpg");
 		display: -moz-flex;
 		display: -webkit-flex;
 		display: -ms-flex;
