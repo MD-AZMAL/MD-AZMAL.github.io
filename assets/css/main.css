@@ -57,16 +57,12 @@ html,body {
 .tags span {
     padding: 0.2rem;
     margin: 0.2rem;
-    background-color: #1A1F2B;
     text-align: center;
+    background-color: #1A1F2B;
+    color: #fff;
     font-weight: bold;
 }
 
-.tags span:hover {
-    transition: 0.1s ease-in all;
-    background-color: #E8790C;
-    color: #1A1F2B;
-}
 
 .white-wrap {
     background-color: rgba(255, 255, 255, 0.4);
@@ -100,9 +96,10 @@ h1 {
     width: 200px;
     height: 200px;
     border-radius: 100px;
-    border: 5px solid rgba(255, 255, 255, 0.9);
-    padding: 0.5rem;
+    border: 6px solid #fff;
+    padding: 0.6rem;
     margin: 0.4rem;
+    background-color: #1A1F2B;
 }
 
 .personal-info p {
@@ -122,18 +119,26 @@ h1 {
 .links a {
     text-decoration: none;
     color: #1A1F2B;
+    font-weight: bold;
 }
 
-.links a:hover {
-    transition: 0.1s ease-in all;
-    color: #E8790C;
-}
 
 .fbtn {
-    background-color: white;
-    color: #1A1F2B;
+    background-color: #1A1F2B;
+    color: #fff;
+    font-weight: bold;
 }
 
+.fbtn:hover {
+    transition: 0.2s ease-in all;
+    background-color: rgba(0, 0, 0, 0);
+    color: #1A1F2B;
+    border: 1px solid #1A1F2B;
+}
+
+.project {
+    margin-bottom: 0;
+}
 
 .projects h1 {
     font-size: 2rem;
@@ -151,23 +156,71 @@ h1 {
 }
 
 .card-body .btn {
-    background-color: #E8790C;
+    background-color: #1A1F2B;
+    color: #fff;
     font-weight: bold;
 }
 
 .card-body .btn:hover {
-    background-color: #1A1F2B;
-    color: #fff;
+    transition: 0.2s ease-in all;
+    background-color: rgba(0, 0, 0, 0);
+    color: #1A1F2B;
+    border: 1px solid #1A1F2B;
 }
 
 .jumbotron {
     background-color: rgba(233, 236, 239,0.5);
 }
 
+.contact {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.contact h1 {
+    font-size: 2rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.about {
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.about h5 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: bolder;
+}
+
+.about p {
+    font-size: 1.2rem;
+}
+
+.header {
+    padding: 0.4rem;
+    margin: 0;
+    background-color: #1A1F2B;
+    color: #fff;
+    font-weight: bold;
+}
+
+
+.head {
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+
+.footer {
+    padding-bottom: 0.2rem;
+}
+
 .foot {
     font-size: 0.8rem;
     text-align: center;
+    font-weight: bold;
 }
+
 
 @media only screen and (max-width: 768px) {
 
@@ -194,6 +247,10 @@ h1 {
 
     .links .typcn {
         font-size: 2.5rem;
+    }
+
+    .about {
+        border: none;
     }
 
     .foot {
