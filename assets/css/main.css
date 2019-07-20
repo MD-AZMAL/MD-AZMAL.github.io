@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Antic+Slab&display=swap');
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+#parent-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+#left-side {
+    width: 25%;
+    height: 100%;
+    text-align: center;
+}
+
+#particles-js {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: -1;
+    background-color: #E8790C;
+}
+
+#profile-pic {
+    margin: 0.5rem auto;
+    border-radius: 100px;
+    padding: 0.2rem;
+    border: 3px solid rgba(255, 255, 255, 0.9);
+}
+
+.profile-content {
+    padding: 0.3rem 0;
+    text-align: center;
+}
+
+.background-wrap {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 0.3rem 0;
+    margin: 0.2rem 0;
+}
+
+.tags {
+    line-height:2rem;
+}
+
+.tags span {
+    padding: 0.2rem;
+    margin: 0.2rem;
+    background-color: #fff;
+    text-align: center;
+    font-weight: bold;
+}
+
+#right-side {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: #1A1F2B;
+}
+
+
+@media only screen and (max-width: 600px) {
+    #parent-container {
+        display: block;
+    }
+
+    #left-side {
+        width: 100%;
+    }
+
+    #right-side {
+        width: 100%;
+    }
+} 
+
+
+/* Color Theme Swatches in Hex */
+/* .portfolio-1-hex { color: #1A1F2B; }
+.portfolio-2-hex { color: #6C7EE8; }
+.portfolio-3-hex { color: #9C96FF; }
+.portfolio-4-hex { color: #E8790C; }
+.portfolio-5-hex { color: #FFDE0D; } */
+
+
+
