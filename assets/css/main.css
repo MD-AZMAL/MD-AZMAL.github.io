@@ -49,16 +49,23 @@ html,body {
 .tags {
     font-family: 'Antic Slab', serif;
     line-height:2rem;
-    color: #1A1F2B;
+    color: #fff;
     margin: 1rem 0;
 }
+
 
 .tags span {
     padding: 0.2rem;
     margin: 0.2rem;
-    background-color: #fff;
+    background-color: #1A1F2B;
     text-align: center;
     font-weight: bold;
+}
+
+.tags span:hover {
+    transition: 0.1s ease-in all;
+    background-color: #E8790C;
+    color: #1A1F2B;
 }
 
 .white-wrap {
@@ -66,11 +73,13 @@ html,body {
     padding: 0.2rem 0;
 }
 
-.jumbotron {
+.jumbotron-none {
     padding: 0;
     background: none;
     color: #1A1F2B;
 }
+
+
 
 h1, p {
     color: #1A1F2B;
@@ -96,7 +105,7 @@ h1 {
     margin: 0.4rem;
 }
 
-p {
+.personal-info p {
     font-size: 1.5rem;
 }
 
@@ -115,17 +124,44 @@ p {
     color: #1A1F2B;
 }
 
+.links a:hover {
+    transition: 0.1s ease-in all;
+    color: #E8790C;
+}
+
 .fbtn {
     background-color: white;
     color: #1A1F2B;
 }
 
-a[href$=".pdf"] {
-    color: white;
+
+.projects h1 {
+    font-size: 2rem;
+    font-family: 'Montserrat', sans-serif;
 }
 
-a[href$=".pdf"]:hover {
-    color: white;
+.card {
+    margin: 0.5rem 0;
+}
+
+.card-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.card-body .btn {
+    background-color: #E8790C;
+    font-weight: bold;
+}
+
+.card-body .btn:hover {
+    background-color: #1A1F2B;
+    color: #fff;
+}
+
+.jumbotron {
+    background-color: rgba(233, 236, 239,0.5);
 }
 
 .foot {
@@ -152,12 +188,12 @@ a[href$=".pdf"]:hover {
     }
     
     .links {
-        width: 80%;
+        width: 85%;
         margin: 0 auto;
     }
 
     .links .typcn {
-        font-size: 3rem;
+        font-size: 2.5rem;
     }
 
     .foot {
