@@ -210,6 +210,19 @@ h1 {
     font-weight: bold;
 }
 
+.resume {
+    /* background-color: rgba(255, 255, 255, 0.4); */
+    text-align: center;
+    font-size: 1.2rem;
+    font-family: 'Antic Slab', serif;
+    font-weight: bold;
+    color: #343f58;
+}
+
+.resume:hover {
+    color: #0d1016;
+
+}
 
 .footer {
     padding-bottom: 0.2rem;
