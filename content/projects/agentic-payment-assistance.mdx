@@ -1,0 +1,66 @@
+---
+title: Agentic Payment Assistance
+description: An agentic collections and payment-assistance solution built inside Tech Mahindra's AWS Agentic Process Transformation CoE, published on AWS Marketplace.
+period: 2025 – 2026
+year: 2026
+status: In production
+topic: ai
+stack: [Python, AWS Bedrock, Amazon Connect, TypeScript, Agentic workflows]
+featured: true
+order: 1
+thumb: g3
+link: https://aws.amazon.com/marketplace/pp/prodview-a36zfn6c6euvo
+---
+
+<Lead>
+Collections is a conversation nobody wants to have, run at a volume no team can
+staff for. It is also the kind of work that breaks most "just add an LLM"
+attempts: the call has to follow regulation, the promise-to-pay has to land in a
+system of record, and getting it wrong is expensive in a way a demo never shows.
+</Lead>
+
+This is the solution my team built in Tech Mahindra's **AWS Agentic Process
+Transformation CoE**, and the reason I moved from senior engineer to tech lead
+on it. It is listed publicly on AWS Marketplace.
+
+## What it does
+
+The agent handles the payment-assistance path end to end: it reaches the
+customer, understands why the balance is outstanding, works through the options
+that apply to that account, and records the outcome where the downstream systems
+expect to find it. A human is in the loop wherever the decision is not the
+agent's to make.
+
+<Callout tone="note">
+  Specifics about customer deployments and internal architecture stay inside
+  Tech Mahindra. What is written here matches what has been announced publicly
+  through the CoE and the AWS Marketplace listing.
+</Callout>
+
+## What made it hard
+
+<Compare>
+  <Side kind="bad" label="the demo version">
+    A model with a system prompt, a few tools described in prose, and a person
+    watching. It is convincing for ten minutes and unshippable, because the
+    person watching *is* the safety system.
+  </Side>
+  <Side kind="good" label="the shipped version">
+    Every action the agent can take is declared before the run: what it touches,
+    whether it can be retried, and what has to be true before it fires. The
+    runtime enforces that, not the model.
+  </Side>
+</Compare>
+
+Three things absorbed most of the engineering effort, and none of them were
+prompt design:
+
+1. **Boundaries that hold.** Reading an account and committing a payment
+   arrangement are not the same kind of action, and the runtime has to know the
+   difference before the call goes out — not after.
+2. **Conversations that resume.** A real collections interaction pauses: for an
+   approval, for a callback, for a document. That has to be a state the run can
+   sit in, not an error it recovers from.
+3. **Evidence after the fact.** When something goes wrong the useful question is
+   not "what did it say?" but "which step let it?". That only has an answer if
+   the trajectory was recorded as it happened.

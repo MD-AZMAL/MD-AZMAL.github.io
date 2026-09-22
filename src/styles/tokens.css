@@ -1,0 +1,74 @@
+/**
+ * The site is dark-only and single-accent.
+ *
+ * Page chrome, cards, tiles and thumbnails are monochrome — background, the
+ * three card elevations, and the three ink greys. Orange is the only hue, on
+ * every page, and it is used sparingly so it still reads as emphasis.
+ */
+:root {
+  /* ---------- surfaces ---------- */
+  --bg: #0a0a0c;
+  --card: #141417;
+  --card-2: #1c1c21;
+  --card-3: #24242a;
+  --panel: #000000;
+
+  --line: rgba(255, 255, 255, 0.07);
+  --line-2: rgba(255, 255, 255, 0.16);
+
+  /* ---------- ink ----------
+     Contrast against --bg / --card / --card-2 — keep it there when tuning.
+     Body copy is Sora 300, whose thin strokes read dimmer than the ratio says,
+     so the greys sit well above the WCAG floor rather than on it.
+       --ink    ~18 : 1   titles, emphasis
+       --ink-2  ~10 : 1   body copy, descriptions
+       --ink-3  ~5.4 / 5.0 / 4.6 : 1   labels, dates, captions — this is text
+                too, so it must hold 4.5 : 1 even on --card-2. It used to be
+                #5b5b66 (under 3 : 1) and was unreadable. */
+  --ink: #f3f3f1;
+  --ink-2: #b8b8c0;
+  --ink-3: #85858f;
+
+  /* ---------- the one accent ---------- */
+  --orange: #ff5a1f;
+  --on-orange: #180800;
+  --orange-tint: rgba(255, 90, 31, 0.12);
+  --orange-line: rgba(255, 90, 31, 0.42);
+  --orange-glow: rgba(255, 90, 31, 0.45);
+
+  /* ---------- shape ---------- */
+  --r: 22px;
+  --r-s: 14px;
+
+  --sans: 'Sora', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --gutter: clamp(16px, 3vw, 40px);
+  /* The page's width cap, gutters included (.wrap is border-box). Two
+     straight lines, meeting at a 1500px window, then a ceiling:
+       upper  980px at 1500 -> 1000 at 1536 (1080p at 125%) -> 1200 at 1900,
+              slope 50 / 91 (200px over 364px); flat 1200 after.
+       lower  860px at 860 -> 980 at 1500, slope 3 / 16 - the page narrows
+              gently with the window, keeping a margin, until it meets the
+              window at 860 and just fills it from there down.
+     max() picks whichever line is higher, which is the lower one below 1500
+     and the upper one above it. */
+  --max: min(
+    1200px,
+    max(
+      calc(1000px + (100vw - 1536px) * 50 / 91),
+      calc(860px + (100vw - 860px) * 3 / 16)
+    )
+  );
+  /* 1% of the page's width - 1vw until the window outgrows --max, then
+     --max / 100. Display type that is sized to fill the layout uses this
+     instead of vw, or it would keep growing with the window after the page
+     stops, and overflow it. */
+  --pw: calc(min(100vw, var(--max)) / 100);
+  --gap: 14px;
+
+  color-scheme: dark;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

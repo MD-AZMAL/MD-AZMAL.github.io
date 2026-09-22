@@ -1,0 +1,62 @@
+name: Deploy to GitHub Pages
+
+# Every push to master rebuilds the site and publishes it. Nothing about the
+# built output is committed to the repository — this workflow is the only thing
+# that produces what md-azmal.github.io serves.
+on:
+  push:
+    branches: [master]
+  # Lets you re-deploy from the Actions tab without pushing a commit.
+  workflow_dispatch:
+
+# Grants the built-in GITHUB_TOKEN exactly what Pages needs, and nothing else.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# If two pushes land together, let the newer one win rather than queueing a
+# deploy of already-stale content.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and pre-render
+        run: pnpm build
+
+      - name: Upload the built site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

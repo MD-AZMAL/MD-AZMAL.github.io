@@ -1,0 +1,67 @@
+---
+title: Sharp Tune
+description: A lightweight cross-platform music player built on Electron, with a real-time audio visualiser. My most-used open-source project.
+period: 2018 – 2023
+year: 2023
+status: 24 stars
+topic: craft
+stack: [JavaScript, Electron, Node.js, Web Audio API]
+featured: true
+order: 4
+thumb: g5
+repo: https://github.com/MD-AZMAL/Sharp-Tune
+link: https://electronjs.org/apps/sharp-tune
+---
+
+<Lead>
+Sharp Tune started from a small irritation: every desktop music player I tried
+wanted to be a library manager, a store, or a streaming client. I wanted one
+that opened a folder, played what was in it, and looked good doing it.
+</Lead>
+
+It is the project of mine that other people actually use — listed in the
+Electron app directory, and the one that keeps collecting stars years after the
+last commit.
+
+## What it is
+
+A native-feeling player for Windows and Linux, built on Electron, with an audio
+visualiser driven by the Web Audio API. Point it at a directory; it plays.
+
+<Stats>
+  <Stat value="24" label="GitHub stars" tone="accent" />
+  <Stat value="2" label="platforms shipped" />
+  <Stat value="5" label="years maintained" />
+  <Stat value="0" label="accounts required" />
+</Stats>
+
+## The visualiser
+
+The visualiser is the reason the project exists and the reason people star it.
+It taps the analyser node in the Web Audio graph, reads the frequency data each
+frame, and draws it — which sounds trivial until you try to make it look
+deliberate rather than like a level meter having a seizure.
+
+Two decisions did most of the work:
+
+- **Smooth between frames, not within them.** Raw FFT output is jittery.
+  Interpolating each bar toward its new value, instead of snapping, is the
+  difference between "technical" and "designed".
+- **Pick a frequency range humans care about.** The top of the spectrum is
+  mostly empty on real music. Spending pixels there wastes the display.
+
+<Callout tone="tip">
+  If you want to learn the Web Audio API, a visualiser is a better first project
+  than an effects chain. You get immediate visual feedback on whether your
+  understanding of the graph is correct.
+</Callout>
+
+## Why it is still here
+
+Electron gets criticised, usually fairly, for shipping a browser to draw a
+window. For this project it was exactly right: one codebase, two platforms, and
+direct access to the audio APIs I needed. The alternative was writing the same
+player twice and getting the visualiser wrong in two languages.
+
+Choosing the heavier tool because it makes the *interesting* part of the work
+tractable is a trade I have made many times since, generally without regret.

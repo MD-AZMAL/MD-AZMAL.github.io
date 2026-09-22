@@ -1,0 +1,566 @@
+/* ---------- shared page shell ---------- */
+/* Longhands on purpose: `.page` sits on a `.wrap`, and a `padding` shorthand
+   here zeroed the wrap's side gutter, so every page ran 40px wider than the
+   nav above it. */
+.page {
+  padding-top: calc(96px + env(safe-area-inset-top, 0px));
+  padding-bottom: 40px;
+}
+
+/* ---------- archive hero ---------- */
+.arch-hero {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+  margin-bottom: var(--gap);
+}
+.arch-hero .title {
+  grid-column: 1 / 8;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 6px 4px 10px;
+}
+.arch-hero h1 {
+  font-weight: 700;
+  font-size: clamp(56px, calc(10 * var(--pw)), 150px);
+  letter-spacing: -0.055em;
+  line-height: 0.88;
+}
+.arch-hero h1 span {
+  display: inline-block;
+  width: 0.2em;
+  height: 0.2em;
+  border-top: 0.055em solid var(--ink);
+  border-right: 0.055em solid var(--ink);
+  vertical-align: top;
+  margin-left: 0.06em;
+}
+.arch-hero .lede {
+  color: var(--ink-2);
+  max-width: 42ch;
+  font-size: 15px;
+  margin-top: 18px;
+}
+.arch-hero .search {
+  grid-column: 8 / 13;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+}
+/* The blog's search: the field alone, no card and no counts. The title
+   column ends with 10px of padding under its caption, so the same 10px here
+   puts the field's bottom edge on the caption's. */
+.arch-hero .search.bare {
+  align-self: end;
+  padding: 0 0 10px;
+}
+.search .field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card-2);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  padding: 6px 6px 6px 16px;
+}
+.search .field:focus-within {
+  border-color: var(--orange);
+}
+.search input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: 0;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  outline: 0;
+}
+.search .field i {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--bg);
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-style: normal;
+  flex: none;
+}
+.search .counts {
+  display: flex;
+  gap: var(--gap);
+}
+.search .counts div {
+  flex: 1;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+.search .counts b {
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+  display: block;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.search .counts small {
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+/* ---------- toolbar / filters ---------- */
+/* One line: the filter rows take what the count beside them leaves, and
+   scroll sideways inside it rather than wrapping. */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin: 26px 0 18px;
+}
+.toolbar > .filters,
+.toolbar > .filter-rows {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.toolbar > .mono {
+  flex: none;
+}
+.filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.filters button {
+  flex: none;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  color: var(--ink-2);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.filters button.on,
+.filters button:hover {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+/* A filter row that overflows scrolls sideways instead of wrapping: by touch
+   or trackpad natively, by mouse drag via useDragScroll. The scrollbar is
+   hidden, so the hint is a fade on whichever edge has more past it. The 3px
+   of padding, taken back by the margin, keeps a focused pill's outline from
+   being clipped by the overflow. */
+.filters.scroller {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding: 3px;
+  margin: -3px;
+}
+.filters.scroller::-webkit-scrollbar {
+  display: none;
+}
+.filters.scroller[data-scrollable] {
+  cursor: grab;
+}
+.filters.scroller[data-dragging] {
+  cursor: grabbing;
+  user-select: none;
+}
+.filters.scroller[data-more-right] {
+  mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent);
+}
+.filters.scroller[data-more-left] {
+  mask-image: linear-gradient(90deg, transparent, #000 36px);
+}
+.filters.scroller[data-more-left][data-more-right] {
+  mask-image: linear-gradient(90deg, transparent, #000 36px, #000 calc(100% - 36px), transparent);
+}
+/* Topics on the first row, tags under them: the same pill, a size down, with
+   a # to say which filter it is. */
+.filter-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tag-filters button {
+  padding: 6px 12px;
+}
+.tag-filters button i {
+  font-style: normal;
+  color: var(--ink-3);
+  margin-right: 2px;
+  transition: color 0.2s;
+}
+.tag-filters button.on i,
+.tag-filters button:hover i {
+  color: inherit;
+}
+
+/* ---------- archive grid ---------- */
+.arch {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+}
+.arch .post {
+  grid-column: span 4;
+}
+/* The blog's grid: rows of three, and a last row that is short shares the
+   full width between what it has - one card spans it, two split it 50/50.
+   The selectors find the last row by counting: a card that starts a row
+   (3n + 1) and is also the last card is alone; one that starts a row and is
+   second from last has one partner. Desktop only - from 860px down every card
+   is full width anyway. */
+@media (min-width: 861px) {
+  .arch.fill-rows .post {
+    grid-column: span 4;
+  }
+  .arch.fill-rows .post:nth-child(3n + 1):last-child {
+    grid-column: 1 / -1;
+  }
+  .arch.fill-rows .post:nth-child(3n + 1):nth-last-child(2),
+  .arch.fill-rows .post:nth-child(3n + 1):nth-last-child(2) + .post {
+    grid-column: span 6;
+  }
+}
+.arch .post.big {
+  grid-column: span 8;
+  min-height: 340px;
+}
+.arch .post.big .thumb {
+  height: 180px;
+}
+.arch .post.big h3 {
+  font-size: clamp(24px, 2.6vw, 34px);
+  max-width: 22ch;
+}
+.arch .post.big .thumb::after {
+  transform: scale(1.4) rotate(45deg);
+}
+.subscribe {
+  grid-column: span 4;
+  background: var(--orange);
+  color: var(--on-orange);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  border-color: transparent;
+}
+.subscribe h3 {
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.subscribe .btn {
+  background: var(--on-orange);
+  color: var(--orange);
+  align-self: flex-start;
+}
+.subscribe .btn i {
+  background: var(--orange);
+  color: var(--on-orange);
+}
+.empty {
+  grid-column: 1 / -1;
+  padding: 48px 40px;
+  text-align: center;
+  color: var(--ink-2);
+}
+.empty b {
+  display: block;
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+/* ---------- post card ---------- */
+.post {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 200px;
+  justify-content: space-between;
+}
+.post .meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+/* No measure cap: a card's title runs the card's full width. */
+.post h3 {
+  font-weight: 400;
+  font-size: clamp(18px, 1.7vw, 22px);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+/* ---------- HUD affordance ----------
+   Replaces the old "Open"/"Read" caption. A node and a short dash at rest; on
+   hover the dash runs out to the full width of the card. */
+.hud {
+  align-self: stretch;
+  position: relative;
+  height: 12px;
+  flex: none;
+}
+
+/* The resting mark, and the point the line is drawn from. */
+.hud-node {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--ink-3);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.hud-line {
+  position: absolute;
+  left: 10px;
+  bottom: 2px;
+  height: 1px;
+  width: 20px;
+  background: var(--ink-3);
+  transition: width 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), background 0.3s ease;
+}
+
+.post:hover .hud-node,
+.post:focus-visible .hud-node {
+  background: var(--orange);
+  border-color: var(--orange);
+}
+.post:hover .hud-line,
+.post:focus-visible .hud-line {
+  width: calc(100% - 10px);
+  background: var(--orange);
+}
+
+/* ---------- generated thumbnails ----------
+   Six monochrome textures with an orange mark, so a grid of cards reads as one
+   set rather than a colour swatch. */
+.thumb {
+  height: 96px;
+  border-radius: var(--r-s);
+  position: relative;
+  overflow: hidden;
+  background: var(--card-2);
+  flex: none;
+}
+.thumb.g1 {
+  background: repeating-linear-gradient(90deg, transparent 0 10px, rgba(255, 255, 255, 0.07) 10px 11px),
+    linear-gradient(135deg, #17171b, #25252c);
+}
+.thumb.g1::after {
+  content: '';
+  position: absolute;
+  left: 24px;
+  top: 22px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid var(--orange);
+}
+.thumb.g2 {
+  background: radial-gradient(rgba(255, 255, 255, 0.22) 1.2px, transparent 1.4px) 0 0 / 14px 14px, #14141a;
+}
+.thumb.g2::after {
+  content: '';
+  position: absolute;
+  right: 26px;
+  top: 24px;
+  width: 44px;
+  height: 44px;
+  background: var(--orange);
+  border-radius: 10px;
+  transform: rotate(45deg);
+}
+.thumb.g3 {
+  background: conic-gradient(from 0deg at 30% 50%, #17171b 0 25%, #24242c 0 50%, #17171b 0 75%, #24242c 0);
+}
+.thumb.g3::after {
+  content: '';
+  position: absolute;
+  left: calc(30% - 20px);
+  top: calc(50% - 20px);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 34px var(--orange-glow);
+}
+.thumb.g4 {
+  background: repeating-radial-gradient(circle at 80% 50%, transparent 0 12px, rgba(255, 255, 255, 0.12) 12px 13px),
+    #16161a;
+}
+.thumb.g4::after {
+  content: '';
+  position: absolute;
+  left: 26px;
+  bottom: 22px;
+  width: 34px;
+  height: 3px;
+  background: var(--orange);
+}
+.thumb.g5 {
+  background: linear-gradient(135deg, #17171b 0 50%, #25252c 50%);
+}
+.thumb.g5::after {
+  content: '';
+  position: absolute;
+  right: 28px;
+  bottom: 18px;
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--orange);
+  border-radius: 16px 16px 16px 0;
+}
+.thumb.g6 {
+  background: repeating-linear-gradient(45deg, transparent 0 9px, rgba(255, 255, 255, 0.09) 9px 10px), #131317;
+}
+.thumb.g6::after {
+  content: '';
+  position: absolute;
+  left: 28px;
+  top: 26px;
+  width: 42px;
+  height: 42px;
+  background: var(--orange);
+  border-radius: 50% 50% 0 50%;
+}
+
+/* ---------- topic art ----------
+   A post card's thumbnail when its topic has one (TopicThumb.tsx): the
+   texture here, one simple motif as an SVG anchored right. Hover follows the
+   home page's rules - the card stays put, the motif moves along its own shape
+   (the ring's dashes march round it, the steps orbit its centre), and the
+   orange arrives as a trace run along the ring (.tr, from home.css). The loops
+   idle paused, so leaving a card freezes them where they are; both are
+   periodic, so any frozen frame is a resting state. */
+.thumb > .topic-art {
+  position: absolute;
+  right: 24px;
+  top: 0;
+  height: 100%;
+  width: auto;
+}
+.topic-art .loop {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.24);
+  stroke-width: 1;
+  /* period 10, matched by loop-march */
+  stroke-dasharray: 4 6;
+  animation: loop-march 1.2s linear infinite;
+  animation-play-state: paused;
+}
+.topic-art .loop-tr {
+  fill: none;
+  stroke: var(--orange);
+  stroke-width: 1.5;
+}
+.topic-art .orbit {
+  transform-box: view-box;
+  transform-origin: 60px 48px;
+  animation: spin 9s linear infinite;
+  animation-play-state: paused;
+}
+.topic-art .step {
+  fill: var(--card-2);
+  stroke: rgba(255, 255, 255, 0.45);
+  stroke-width: 1;
+}
+.topic-art .step.on {
+  fill: var(--orange);
+  stroke: none;
+}
+.topic-art .core {
+  fill: var(--ink);
+}
+.post:hover .topic-art .loop,
+.post:hover .topic-art .orbit,
+.post:focus-visible .topic-art .loop,
+.post:focus-visible .topic-art .orbit {
+  animation-play-state: running;
+}
+.post:hover .topic-art .tr,
+.post:focus-visible .topic-art .tr {
+  stroke-dashoffset: 0;
+}
+@keyframes loop-march {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+/* Agentic AI: a dot field, like a graph's grid, under the loop. */
+.thumb.topic-ai {
+  background: radial-gradient(rgba(255, 255, 255, 0.13) 1px, transparent 1.3px) 0 0 / 14px 14px,
+    linear-gradient(135deg, #16161a, #1f1f25);
+}
+
+/* ---------- project archive extras ---------- */
+.proj-meta {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.proj-meta span {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  color: var(--ink-3);
+}
+
+@media (max-width: 860px) {
+  .arch-hero .title,
+  .arch-hero .search {
+    grid-column: 1 / -1;
+  }
+  .arch .post,
+  .arch .post.big,
+  .subscribe {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 600px) {
+  /* The filter rows get the full width; the count drops under them. */
+  .toolbar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .toolbar > .filters,
+  .toolbar > .filter-rows {
+    flex-basis: 100%;
+  }
+  .arch-hero h1 {
+    font-size: clamp(52px, 17vw, 96px);
+  }
+  .search .counts {
+    gap: 10px;
+  }
+  .search .counts b {
+    font-size: 22px;
+  }
+  .post {
+    min-height: 0;
+  }
+}

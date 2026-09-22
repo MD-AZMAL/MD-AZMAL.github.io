@@ -1,0 +1,1035 @@
+/* ---------- hero bento ---------- */
+.hero {
+  padding: calc(96px + env(safe-area-inset-top, 0px)) 0 20px;
+}
+.bento {
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: auto 170px 170px minmax(150px, auto);
+}
+
+.profile {
+  grid-column: 1 / 5;
+  grid-row: 1 / 5;
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 560px;
+}
+.profile .tab {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 10px 18px 10px 26px;
+  background: var(--bg);
+  border-radius: 0 0 18px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.profile .tab i {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--orange);
+  transform: rotate(45deg);
+  display: inline-block;
+}
+.profile .tab::before {
+  content: '';
+  position: absolute;
+  right: -18px;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  background: radial-gradient(circle at 100% 100%, transparent 17px, var(--bg) 18px);
+}
+
+.ring {
+  width: min(240px, 62%);
+  aspect-ratio: 1;
+  margin: 54px auto 0;
+  position: relative;
+}
+.ring svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+}
+.ring img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 52%;
+  height: 52%;
+  border-radius: 50%;
+  object-fit: cover;
+  /* The avatar is a cut-out bust, taller than wide: anchor the crop at the
+     top so the hair stays in and only the shoulders are trimmed, and give the
+     transparent surround a disc to sit on. */
+  object-position: 50% 0;
+  background: var(--card-3);
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+/* Each ring carries two animations: the spin, which always runs, and a dash
+   march that only runs while the card is hovered. `animation-play-state` takes
+   one value per animation, which is what makes that possible. Each march is one
+   full dash period, so the loop is seamless and the circle never changes. */
+.ring .r1 {
+  animation: spin 26s linear infinite, march-r1 4.5s linear infinite;
+  animation-play-state: running, paused;
+  transform-origin: 50% 50%;
+}
+.ring .r2 {
+  animation: spin 18s linear infinite reverse, march-r2 1.8s linear infinite;
+  animation-play-state: running, paused;
+  transform-origin: 50% 50%;
+}
+.profile:hover .ring .r1,
+.profile:hover .ring .r2 {
+  animation-play-state: running, running;
+}
+/* dasharray "120 40 20 40 8 40" -> period 268 */
+@keyframes march-r1 {
+  to {
+    stroke-dashoffset: -268;
+  }
+}
+/* dasharray "6 10" -> period 16 */
+@keyframes march-r2 {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.profile h1 {
+  font-weight: 400;
+  font-size: clamp(36px, 4.4vw, 58px);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  margin-top: 24px;
+}
+.profile h1 small {
+  display: block;
+  font-size: 0.55em;
+  font-weight: 300;
+  color: var(--ink-3);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.15em;
+}
+.profile h1 b {
+  font-weight: 700;
+}
+.profile .role {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin-top: 12px;
+  max-width: 30ch;
+}
+.profile .bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 26px;
+}
+.profile .mail {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-2);
+  border-bottom: 1px dashed var(--line-2);
+  padding-bottom: 6px;
+  transition: color 0.2s, border-color 0.2s;
+  overflow-wrap: anywhere;
+}
+.profile .mail:hover {
+  color: var(--orange);
+  border-color: var(--orange-line);
+}
+.badge {
+  width: 92px;
+  height: 92px;
+  position: relative;
+  flex: none;
+}
+.badge svg {
+  width: 100%;
+  height: 100%;
+  animation: spin 14s linear infinite;
+  transform-origin: 50% 50%;
+  position: relative;
+  z-index: 1;
+}
+.badge svg text {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  fill: var(--on-orange);
+}
+.badge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--orange);
+  z-index: 0;
+}
+.badge::after {
+  content: '';
+  position: absolute;
+  inset: 36px;
+  border-radius: 50%;
+  background: var(--bg);
+  z-index: 1;
+}
+
+.display {
+  grid-column: 5 / 13;
+  grid-row: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  /* The word sits directly above the featured card; it needs air under it. */
+  padding: 6px 4px 26px;
+  position: relative;
+}
+.display h2 {
+  font-weight: 700;
+  /* --pw, not vw: the word does not wrap, and the page stops widening
+     before the window does. */
+  font-size: clamp(64px, calc(8.4 * var(--pw)), 124px);
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
+}
+.display .corner {
+  width: 22px;
+  height: 22px;
+  border-top: 3px solid var(--ink);
+  border-right: 3px solid var(--ink);
+  align-self: flex-start;
+  margin-top: 0.1em;
+}
+.display .sub {
+  position: absolute;
+  right: 6px;
+  /* Keeps its baseline with the word rather than dropping into the new gap. */
+  bottom: 30px;
+  /* Narrows with the column, so it never reaches back under the word. */
+  max-width: min(240px, 36%);
+  text-align: right;
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.45;
+}
+
+.feature {
+  grid-column: 5 / 10;
+  grid-row: 2 / 4;
+  padding: 22px;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.feature .vis {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(circle at 70% 50%, var(--orange-tint), transparent 48%),
+    radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1.2px) 0 0 / 18px 18px;
+}
+.feature .vis svg {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: auto;
+}
+.feature > * {
+  position: relative;
+  z-index: 1;
+}
+.feature .head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.feature h3 {
+  font-weight: 500;
+  font-size: clamp(18px, 1.7vw, 22px);
+  letter-spacing: -0.02em;
+}
+.feature p {
+  color: var(--ink-2);
+  max-width: 36ch;
+  font-size: 14px;
+  margin-top: 6px;
+}
+.play {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: var(--on-orange);
+  display: grid;
+  place-items: center;
+  flex: none;
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.feature:hover .play {
+  transform: scale(1.08) rotate(-45deg);
+}
+
+/* ---------- the stack opens ----------
+   The one card whose artwork does move. Hovering lifts the three layers from 80
+   units apart to 104 — bottom down 6, middle up 18, top up 42 — and the dashed
+   guides scale so they stay pinned to what they connect. The side guides span
+   140->300 and the centre one 90->350, which is why they need different
+   factors; each scales about its own lower end, hence `transform-box: fill-box`.
+   The layers settle bottom-up, hence the ascending delays, and the orange trace
+   on `.tr` follows them. */
+.fv-l,
+.fv-ax {
+  transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.fv-ax {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition-delay: 0.02s;
+}
+.fv-l3 {
+  transition-delay: 0s;
+}
+.fv-l2 {
+  transition-delay: 0.05s;
+}
+.fv-l1 {
+  transition-delay: 0.1s;
+}
+
+.feature:hover .fv-l1,
+.feature:focus-visible .fv-l1 {
+  transform: translateY(-42px);
+}
+.feature:hover .fv-l2,
+.feature:focus-visible .fv-l2 {
+  transform: translateY(-18px);
+}
+.feature:hover .fv-l3,
+.feature:focus-visible .fv-l3 {
+  transform: translateY(6px);
+}
+.feature:hover .fv-ax-s,
+.feature:focus-visible .fv-ax-s {
+  transform: translateY(6px) scaleY(1.3);
+}
+.feature:hover .fv-ax-c,
+.feature:focus-visible .fv-ax-c {
+  transform: translateY(6px) scaleY(1.185);
+}
+
+/* ---------- the exploding stack ----------
+   At rest the three layers sit 80 units apart. On hover each moves to its own
+   new height, opening the spacing to 104, and the dashed guides scale so they
+   stay pinned to the layers they connect: the side guides span 140->300 and the
+   centre one 90->350, which is why they need different factors. The layers
+   settle bottom-up, hence the ascending delays. */
+.fv-l,
+.fv-ax {
+  transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+/* Scale about each guide's own lower end, not the viewBox origin. */
+.fv-ax {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition-delay: 0.02s;
+}
+.fv-l3 {
+  transition-delay: 0s;
+}
+.fv-l2 {
+  transition-delay: 0.05s;
+}
+.fv-l1 {
+  transition-delay: 0.1s;
+}
+
+.feature:hover .fv-l1,
+.feature:focus-visible .fv-l1 {
+  transform: translateY(-42px);
+}
+.feature:hover .fv-l2,
+.feature:focus-visible .fv-l2 {
+  transform: translateY(-18px);
+}
+.feature:hover .fv-l3,
+.feature:focus-visible .fv-l3 {
+  transform: translateY(6px);
+}
+.feature:hover .fv-ax-s,
+.feature:focus-visible .fv-ax-s {
+  transform: translateY(6px) scaleY(1.3);
+}
+.feature:hover .fv-ax-c,
+.feature:focus-visible .fv-ax-c {
+  transform: translateY(6px) scaleY(1.185);
+}
+
+.stat {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.stat .n {
+  font-weight: 700;
+  font-size: clamp(38px, 3.6vw, 50px);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.stat .l {
+  font-size: 15px;
+  margin-top: 6px;
+  opacity: 0.85;
+}
+/* The number has to clear the dial behind it. */
+.stat .n,
+.stat .l {
+  position: relative;
+  z-index: 1;
+}
+/* ---------- stat dial ----------
+   Clipped into the lower-right corner by the card's own overflow, and faint
+   enough to sit under the label. It never turns — `Glow` lights a second copy
+   of it under the cursor instead. */
+.dial {
+  position: absolute;
+  right: -52px;
+  bottom: -52px;
+  width: 176px;
+  height: 176px;
+  opacity: 0.2;
+  pointer-events: none;
+}
+.card.orange .dial {
+  opacity: 0.24;
+}
+.dial svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* The arcs turn different distances so the set reads as geared together. The
+   rule matches both copies of the dial, which keeps the lit one registered with
+   the faint one. */
+.dial circle {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transition: transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.dial circle:nth-child(2) {
+  transition-delay: 0.05s;
+}
+.dial circle:nth-child(3) {
+  transition-delay: 0.1s;
+}
+.stat:hover .dial circle:nth-child(1) {
+  transform: rotate(54deg);
+}
+.stat:hover .dial circle:nth-child(2) {
+  transform: rotate(-82deg);
+}
+.stat:hover .dial circle:nth-child(3) {
+  transform: rotate(124deg);
+}
+
+.s1 {
+  grid-column: 10 / 13;
+  grid-row: 2;
+}
+.s2 {
+  grid-column: 10 / 13;
+  grid-row: 3;
+}
+
+.wide {
+  grid-column: 5 / 13;
+  grid-row: 4;
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  overflow: hidden;
+}
+.wide .sphere-box {
+  background: #000;
+  display: grid;
+  place-items: center;
+  perspective: 600px;
+}
+.sphere {
+  width: 88px;
+  height: 88px;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: orb 16s linear infinite;
+}
+.sphere i {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+}
+.sphere i:nth-child(1) { transform: rotateY(0deg); }
+.sphere i:nth-child(2) { transform: rotateY(30deg); }
+.sphere i:nth-child(3) { transform: rotateY(60deg); }
+.sphere i:nth-child(4) { transform: rotateY(90deg); }
+.sphere i:nth-child(5) { transform: rotateY(120deg); }
+.sphere i:nth-child(6) { transform: rotateY(150deg); }
+.sphere i:nth-child(7) { transform: rotateX(90deg); border-color: var(--orange); }
+
+/* Hover tips the whole globe and brings its wires up. The tilt is on the
+   wrapper, so the cage turns as one rigid body rather than splaying. */
+.sphere-tilt {
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.wide:hover .sphere-tilt {
+  transform: rotateX(-26deg) rotateZ(9deg);
+}
+.sphere i {
+  transition: border-color 0.5s ease, box-shadow 0.5s ease;
+}
+.wide:hover .sphere i {
+  border-color: rgba(255, 255, 255, 0.92);
+}
+.wide:hover .sphere i:nth-child(7) {
+  border-color: var(--orange);
+  box-shadow: 0 0 22px var(--orange-glow);
+}
+@keyframes orb {
+  to {
+    transform: rotateY(360deg) rotateX(12deg);
+  }
+}
+.wide .txt {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+.wide .txt .l {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.wide .txt .row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.wide .txt .row span {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 5px 9px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  color: var(--ink-2);
+}
+
+/* ---------- marquee ---------- */
+.strip {
+  margin: 28px 0 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.strip .track {
+  display: flex;
+  width: max-content;
+  animation: slide 32s linear infinite;
+}
+.strip span {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 26px;
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.strip span::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--ink-3);
+  transform: rotate(45deg);
+  flex: none;
+}
+.strip:hover .track {
+  animation-play-state: paused;
+}
+@keyframes slide {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- work bento ---------- */
+.work {
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: 240px;
+}
+.tile {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: var(--ink);
+}
+.tile .vis {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.tile > * {
+  position: relative;
+  z-index: 1;
+}
+.tile .top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.tile .tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--ink-2);
+}
+.tile h3 {
+  font-weight: 500;
+  font-size: clamp(22px, 2.2vw, 30px);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+.tile p {
+  color: var(--ink-2);
+  font-size: 14px;
+  margin-top: 6px;
+  max-width: 38ch;
+}
+.tile .arrow {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  display: grid;
+  place-items: center;
+  transition: background 0.3s, transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), color 0.3s;
+  flex: none;
+}
+.tile:hover .arrow {
+  background: var(--ink);
+  color: var(--bg);
+  transform: rotate(-45deg);
+}
+
+.t1 { grid-column: 1 / 8; grid-row: span 2; }
+.t2 { grid-column: 8 / 13; }
+.t3 { grid-column: 8 / 13; }
+.t4 { grid-column: 1 / 6; }
+.t5 { grid-column: 6 / 13; }
+
+.v1 {
+  background: repeating-radial-gradient(circle at 78% 60%, transparent 0 22px, rgba(255, 255, 255, 0.13) 22px 23px);
+  mask-image: radial-gradient(circle at 78% 60%, #000 30%, transparent 72%);
+  -webkit-mask-image: radial-gradient(circle at 78% 60%, #000 30%, transparent 72%);
+}
+.v1::after {
+  content: '';
+  position: absolute;
+  right: 14%;
+  top: 44%;
+  width: 64px;
+  height: 64px;
+  background: var(--orange);
+  border-radius: 50%;
+  box-shadow: 0 0 60px rgba(255, 90, 31, 0.5);
+  animation: pulse 3s ease-in-out infinite;
+}
+@keyframes pulse {
+  50% {
+    transform: scale(1.12);
+  }
+}
+.v2 {
+  background: repeating-linear-gradient(135deg, transparent 0 14px, rgba(255, 255, 255, 0.09) 14px 15px);
+  mask-image: linear-gradient(90deg, transparent 30%, #000);
+  -webkit-mask-image: linear-gradient(90deg, transparent 30%, #000);
+}
+.v3 {
+  background: radial-gradient(rgba(255, 255, 255, 0.16) 1.4px, transparent 1.6px) 0 0 / 16px 16px;
+  mask-image: linear-gradient(90deg, transparent 35%, #000);
+  -webkit-mask-image: linear-gradient(90deg, transparent 35%, #000);
+}
+.v3::after {
+  content: '';
+  position: absolute;
+  right: 30px;
+  /* Sits below the corner arrow rather than under it. */
+  top: 78px;
+  width: 50px;
+  height: 50px;
+  border: 2px solid var(--orange);
+  border-radius: 14px;
+  transform: rotate(45deg);
+}
+.v4 {
+  background: conic-gradient(from 90deg at 80% 50%, var(--card) 0 25%, var(--card-2) 0 50%, var(--card) 0 75%, var(--card-2) 0);
+}
+.v4::after {
+  content: '';
+  position: absolute;
+  right: calc(20% - 40px);
+  top: calc(50% - 40px);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  background: var(--card);
+}
+.tile .v5 {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  padding: 22px;
+  left: auto;
+  width: min(46%, 320px);
+  align-content: center;
+}
+.tile .v5 i {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.tile .v5 i:nth-child(3n) { border-radius: 50%; }
+.tile .v5 i:nth-child(7),
+.tile .v5 i:nth-child(11),
+.tile .v5 i:nth-child(16) { background: var(--orange); }
+
+/* ---------- traced outlines ----------
+   A second copy of a line in the accent, with `pathLength="1"` so a single
+   dashoffset runs it along its own path. The grey original stays put the whole
+   time, so the drawing arrives without the shape ever changing. */
+.tr {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.9s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.tr1 {
+  transition-delay: 0.06s;
+}
+.tr2 {
+  transition-delay: 0.14s;
+}
+.tr3 {
+  transition-delay: 0.22s;
+}
+.feature:hover .tr,
+.feature:focus-visible .tr,
+.profile:hover .tr {
+  stroke-dashoffset: 0;
+}
+
+/* ---------- textures in motion ----------
+   Every texture moves the way its own pattern runs — the hatch slides along its
+   axis, the dot field drifts by one pitch, the fan turns about its focal point
+   — so the motion never reshapes anything. The looping ones idle with
+   `animation-play-state: paused`, which means leaving a card freezes the
+   pattern instead of snapping it; all of them are periodic, so a frozen frame
+   is just another resting state. Tile overrides must be written `.tile .vN` —
+   a bare `.vN` loses to `.tile .vis { inset: 0 }`. */
+
+/* v1: a sonar ring leaves the glow and fades out through the mask. */
+.v1::before {
+  content: '';
+  position: absolute;
+  right: 22%;
+  top: 60%;
+  width: 64px;
+  height: 64px;
+  margin: -32px -32px 0 0;
+  border-radius: 50%;
+  border: 1px solid var(--orange);
+  opacity: 0;
+}
+.tile:hover .v1::before {
+  animation: ping 2.4s cubic-bezier(0.1, 0.55, 0.3, 1) infinite;
+}
+@keyframes ping {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.85;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(3.6);
+    opacity: 0;
+  }
+}
+
+/* v2: the hatch travels along its own 135deg axis. One 15px period is 10.607px
+   on each of x and y. */
+.tile .v2 {
+  animation: hatch 1.8s linear infinite;
+  animation-play-state: paused;
+}
+.tile:hover .v2 {
+  animation-play-state: running;
+}
+@keyframes hatch {
+  to {
+    background-position: 10.607px 10.607px;
+  }
+}
+
+/* v3: the dot field drifts one cell diagonally and the marker turns a quarter
+   on the spot. */
+.tile .v3 {
+  animation: drift 4s linear infinite;
+  animation-play-state: paused;
+}
+.tile:hover .v3 {
+  animation-play-state: running;
+}
+@keyframes drift {
+  to {
+    background-position: 16px -16px;
+  }
+}
+.v3::after {
+  transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.tile:hover .v3::after {
+  transform: rotate(135deg);
+}
+
+/* v4: the fan sweeps. The box overhangs the card by 40% a side so a turn never
+   drags a corner into view, which means the focal point has to be restated
+   against the bigger box — 80% of the card is 66.67% of it. The marker sits
+   exactly on the centre of rotation, so it turns in place. */
+.tile .v4 {
+  inset: -40%;
+  transform-origin: 66.667% 50%;
+  animation: fan 16s linear infinite;
+  animation-play-state: paused;
+}
+.tile .v4 {
+  background: conic-gradient(
+    from 90deg at 66.667% 50%,
+    var(--card) 0 25%,
+    var(--card-2) 0 50%,
+    var(--card) 0 75%,
+    var(--card-2) 0
+  );
+}
+.tile .v4::after {
+  right: calc(33.333% - 40px);
+}
+.tile:hover .v4 {
+  animation-play-state: running;
+}
+@keyframes fan {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* v5 is a grid, so its cells move instead of the box: a lift that runs across
+   the columns left to right. The cells keep their size and shape. */
+.tile .v5 i {
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.tile .v5 i:nth-child(6n + 1) { transition-delay: 0ms; }
+.tile .v5 i:nth-child(6n + 2) { transition-delay: 45ms; }
+.tile .v5 i:nth-child(6n + 3) { transition-delay: 90ms; }
+.tile .v5 i:nth-child(6n + 4) { transition-delay: 135ms; }
+.tile .v5 i:nth-child(6n + 5) { transition-delay: 180ms; }
+.tile .v5 i:nth-child(6n) { transition-delay: 225ms; }
+.tile:hover .v5 i {
+  transform: translateY(-8px);
+}
+
+/* ---------- writing grid on home ---------- */
+
+/* ---------- cta ---------- */
+.cta {
+  margin-top: clamp(64px, 9vh, 110px);
+  padding: clamp(40px, 6vw, 80px) 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+.cta .tiles {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.cta .tiles i {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: var(--card-2);
+  border: 1px solid var(--line-2);
+  transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.cta .tiles i:nth-child(1) { transform: rotate(-14deg) translateY(10px); }
+.cta .tiles i:nth-child(2) { transform: rotate(-6deg); background: var(--card-3); }
+.cta .tiles i:nth-child(3) {
+  background: var(--orange);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 40px var(--orange-glow);
+}
+.cta .tiles i:nth-child(4) { transform: rotate(6deg); background: var(--card-3); }
+.cta .tiles i:nth-child(5) { transform: rotate(14deg) translateY(10px); }
+.cta:hover .tiles i:nth-child(1) { transform: rotate(-20deg) translateY(4px); }
+.cta:hover .tiles i:nth-child(5) { transform: rotate(20deg) translateY(4px); }
+.cta h2 {
+  font-weight: 500;
+  font-size: clamp(30px, 4vw, 54px);
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  max-width: 16ch;
+}
+.cta p {
+  color: var(--ink-2);
+  max-width: 46ch;
+  font-size: 14px;
+}
+.cta .btns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+@media (max-width: 1000px) {
+  .bento { grid-template-rows: auto 160px 160px minmax(150px, auto); }
+  .display h2 { font-size: clamp(48px, 9vw, 90px); }
+  .display .sub { display: none; }
+}
+
+@media (max-width: 860px) {
+  .bento {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: none;
+    grid-auto-rows: auto;
+  }
+  .profile { grid-column: 1 / -1; grid-row: auto; min-height: 0; }
+  .display { grid-column: 1 / -1; grid-row: auto; padding: 8px 0; }
+  .display h2 { white-space: normal; font-size: clamp(48px, 14vw, 80px); }
+  .feature { grid-column: 1 / -1; grid-row: auto; min-height: 280px; }
+  .s1, .s2 { grid-column: auto; grid-row: auto; min-height: 150px; }
+  .wide { grid-column: 1 / -1; grid-row: auto; grid-template-columns: 120px 1fr; min-height: 150px; }
+  .work { grid-template-columns: 1fr; grid-auto-rows: 220px; }
+  .t1, .t2, .t3, .t4, .t5 { grid-column: 1 / -1; grid-row: auto; }
+  .tile .v5 { width: 44%; }
+}
+
+/* Phones: the two-column bento gets too cramped to read below this. */
+@media (max-width: 600px) {
+  /* Period and stack stay one line in their pill, cut with an ellipsis,
+     rather than wrapping into a two-line lozenge. */
+  .tile .tag {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .tile .top .arrow {
+    flex: none;
+  }
+  .bento {
+    grid-template-columns: 1fr;
+  }
+  .profile {
+    min-height: 0;
+  }
+  .ring {
+    width: min(200px, 56%);
+    margin-top: 44px;
+  }
+  .display h2 {
+    font-size: clamp(44px, 15vw, 72px);
+  }
+  .feature {
+    min-height: 240px;
+  }
+  .s1,
+  .s2 {
+    min-height: 130px;
+  }
+  .wide {
+    grid-template-columns: 104px 1fr;
+  }
+  .sphere {
+    width: 68px;
+    height: 68px;
+  }
+  .work {
+    grid-auto-rows: auto;
+  }
+  .tile {
+    min-height: 210px;
+  }
+  .tile .v5 {
+    width: 40%;
+    gap: 5px;
+  }
+  /* Keep the glow clear of the copy once the tile is a single column. */
+  .v1::after {
+    width: 44px;
+    height: 44px;
+    right: 9%;
+    top: 16%;
+  }
+  .strip span {
+    padding: 14px 18px;
+    font-size: 14px;
+  }
+  .cta .tiles i {
+    width: 48px;
+    height: 48px;
+  }
+}

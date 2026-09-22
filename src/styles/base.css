@@ -1,0 +1,474 @@
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 90px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* The page takes whatever height the content does not, so on a short page the
+   footer still sits at the bottom of the window instead of halfway up it.
+   The skip link, the nav and the reading bar are all positioned, so the only
+   flex items are <main> and <footer>. */
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+#root > main {
+  flex: 1 0 auto;
+  /* .wrap's auto margins stop a flex item stretching; without this a page
+     with little in it would shrink to its content. */
+  width: 100%;
+}
+
+::selection {
+  background: var(--orange);
+  color: #000;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 3px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+}
+
+.wrap {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--ink);
+  color: var(--bg);
+  padding: 10px 16px;
+  border-radius: 0 0 12px 0;
+  font-size: 13px;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+/* ---------- nav ---------- */
+.nav {
+  position: fixed;
+  top: calc(18px + env(safe-area-inset-top, 0px));
+  left: 0;
+  right: 0;
+  z-index: 50;
+  pointer-events: none;
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+/* Clears its own height plus the top offset, so nothing peeks out — including
+   on devices where the safe-area inset pushes it further down. */
+.nav.hidden {
+  transform: translateY(calc(-100% - 30px - env(safe-area-inset-top, 0px)));
+}
+/* The links are still focusable, so tabbing to them must bring the bar back. */
+.nav.hidden:focus-within {
+  transform: none;
+}
+.nav .wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.pill {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(20, 20, 23, 0.72);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 999px;
+  padding: 8px 10px 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.pill .logo {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: conic-gradient(var(--orange) 0 50%, var(--ink) 50% 100%);
+  transform: rotate(-45deg);
+  flex: none;
+}
+.pill nav {
+  display: flex;
+  gap: 2px;
+  margin-left: 6px;
+}
+.pill nav a {
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: var(--ink-2);
+  font-weight: 400;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.pill nav a:hover,
+.pill nav a.active {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ink);
+}
+.nav-right {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(20, 20, 23, 0.72);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-2);
+}
+.nav-right a {
+  padding: 3px 8px;
+  border-radius: 999px;
+  transition: background 0.2s, color 0.2s;
+}
+.nav-right a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ink);
+}
+/* The phone menu (Nav.tsx): a button at the end of the pill and a panel under
+   the bar. Both exist only from 860px down, where the pill drops its links. */
+.menu-btn,
+.menu-panel {
+  display: none;
+}
+
+/* ---------- cards ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.35s;
+}
+/* Hovering a card changes its border and whatever affordance it carries (the
+   HUD, the corner arrow) — it does not lift. The lift read as noise once every
+   card had one. */
+a.card:hover,
+.card.hoverable:hover {
+  border-color: var(--line-2);
+}
+.card.mark::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  opacity: 0.7;
+}
+/* The single accent fill. One per view, at most — it is the loudest thing
+   on the page and stops working if it is repeated. */
+.card.orange {
+  background: var(--orange);
+  color: var(--on-orange);
+  border-color: transparent;
+}
+/* Monochrome elevations. */
+.card.deep {
+  background: var(--card-2);
+}
+.card.raised {
+  background: var(--card-3);
+}
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--orange);
+  color: var(--on-orange);
+  border-radius: 999px;
+  padding: 6px 18px 6px 6px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.btn i {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--on-orange);
+  color: var(--orange);
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+  flex: none;
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+.btn:hover i {
+  transform: rotate(-45deg);
+}
+.btn.ghost {
+  background: var(--card-2);
+  color: var(--ink);
+  border: 1px solid var(--line-2);
+}
+.btn.ghost i {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* ---------- section heads ---------- */
+.block {
+  padding: clamp(64px, 9vh, 110px) 0 0;
+}
+.block-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+.block-head h2 {
+  font-weight: 500;
+  font-size: clamp(30px, 3.4vw, 46px);
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+.block-head h2 span {
+  color: var(--ink-3);
+}
+
+/* Separate facts on one line sit apart by whitespace (a project card's period
+   and status). The site uses no dot separator anywhere; where a separator has
+   to be text it is a hyphen, except on cards - the home page's featured-work
+   tiles and the post cards - which use a pipe. */
+.spaced > * + * {
+  margin-left: 0.9em;
+}
+
+/* Read by screen readers, invisible on screen. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- shared chips ----------
+   Every kind label is the same neutral pill — essay, writeup and notes are told
+   apart by the word, not a colour. */
+.kind {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.date {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* ---------- footer ---------- */
+footer {
+  margin-top: 40px;
+  padding: 26px 0 36px;
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+footer .wrap {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+footer a:hover {
+  color: var(--ink-2);
+}
+
+/* ---------- reveal ---------- */
+.rv {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.rv[data-in] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 860px) {
+  .pill nav {
+    display: none;
+  }
+  .menu-btn {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    margin: -2px -2px -2px 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  /* Two bars that cross into an X while the menu is open. */
+  .menu-btn i {
+    position: relative;
+    width: 14px;
+    height: 10px;
+  }
+  .menu-btn i::before,
+  .menu-btn i::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1.5px;
+    border-radius: 1px;
+    background: currentColor;
+    transition: transform 0.25s ease, top 0.25s ease;
+  }
+  .menu-btn i::before {
+    top: 2px;
+  }
+  .menu-btn i::after {
+    top: 7px;
+  }
+  .menu-btn[aria-expanded='true'] i::before {
+    top: 4.25px;
+    transform: rotate(45deg);
+  }
+  .menu-btn[aria-expanded='true'] i::after {
+    top: 4.25px;
+    transform: rotate(-45deg);
+  }
+  /* `hidden` is the closed state; an author `display` would override it, so
+     the panel only takes one while it is open. */
+  .menu-panel:not([hidden]) {
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    min-width: 220px;
+    gap: 2px;
+    margin-top: 8px;
+    padding: 8px;
+    background: rgba(20, 20, 23, 0.94);
+    border: 1px solid var(--line-2);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: var(--r);
+  }
+  .menu-panel a {
+    padding: 13px 16px;
+    border-radius: var(--r-s);
+    font-size: 16px;
+    color: var(--ink-2);
+    transition: background 0.2s, color 0.2s;
+  }
+  .menu-panel a:hover,
+  .menu-panel a.active {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .rv {
+    opacity: 1;
+    transform: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .block-head h2 {
+    font-size: 26px;
+  }
+  .block-head .btn {
+    flex: none;
+    white-space: nowrap;
+  }
+  .nav-right {
+    font-size: 10px;
+    padding: 6px 8px;
+    gap: 4px;
+  }
+  .nav-right a {
+    padding: 3px 6px;
+  }
+}

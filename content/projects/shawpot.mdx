@@ -1,0 +1,62 @@
+---
+title: Shawpot
+description: A low-interaction HTTP honeypot — a door that only looks open, logging everything about whoever knocks.
+period: 2019 – 2022
+year: 2022
+topic: security
+stack: [Python, HTTP, Ruby]
+featured: true
+order: 5
+thumb: g6
+repo: https://github.com/MD-AZMAL/shawpot
+---
+
+<Lead>
+A honeypot is a lie you leave running. Shawpot listens on an HTTP port, serves
+something that looks like a forgotten admin panel, and records everything about
+whoever arrives — headers, timing, and the order they try paths in.
+</Lead>
+
+It is a few hundred lines of Python. The interesting part was never the code; it
+was what a month of logs does to how you read a request.
+
+## Three kinds of visitor
+
+Traffic to an exposed port sorts itself into shapes surprisingly quickly:
+
+- **Scanners** hit one path and leave. This is almost everything.
+- **Scripts** walk a wordlist in order, at machine speed, and never deviate.
+- **People** pause. They change user-agent and come back slower. There are very
+  few of them.
+
+> The interesting attackers are the ones who behave like they are being watched.
+
+## What it changed
+
+Before Shawpot I read logs as evidence: this request, was it malicious? After
+it, I read them as behaviour. The gap *between* requests carried more
+information than any individual request did — a wordlist walked at a uniform
+120ms is a different actor from one walked at a human's irregular pace, even
+when the requests are byte-identical.
+
+<Callout tone="note">
+  That instinct transferred directly. When I evaluate an agent run today, the
+  trajectory is the signal and the final answer is noise — see
+  [Agentic Payment Assistance](/projects/agentic-payment-assistance).
+</Callout>
+
+## Running one responsibly
+
+A honeypot is a system you have deliberately made attractive to attackers, which
+makes it a system you have deliberately made into a liability.
+
+1. **Low interaction, on purpose.** It serves a convincing surface and nothing
+   more. There is no shell to escape into, because there is no shell.
+2. **Isolate it.** Its own host, its own network, nothing trusted reachable from it.
+3. **Treat the logs as untrusted input.** They are attacker-controlled strings.
+   Rendering them unescaped in your own dashboard is how the honeypot ends up
+   attacking you.
+
+There is also a Ruby sibling, `shawpot-init`, from when I was curious whether
+the same design read differently in another language. It did, slightly, and not
+in Ruby's favour for this particular job.

@@ -1,0 +1,52 @@
+---
+title: Supertonic-3 Docker
+description: A FastAPI wrapper around supertonic-3 — fast, multilingual, on-device text-to-speech running natively on ONNX Runtime, packaged to deploy.
+period: 2026
+year: 2026
+topic: ai
+stack: [Python, FastAPI, ONNX Runtime, Docker]
+thumb: g1
+repo: https://github.com/MD-AZMAL/supertonic-3-docker
+---
+
+<Lead>
+A good model and a deployable service are different artefacts. supertonic-3 is
+a fast, multilingual text-to-speech model that runs on-device through ONNX
+Runtime. This is the small amount of unglamorous work that turns it into
+something you can point a system at.
+</Lead>
+
+## What it adds
+
+- A **FastAPI** service in front of the model, so synthesis is an HTTP call
+  rather than a Python import.
+- A **container** that carries the runtime and its dependencies, so the thing
+  that worked on a laptop works on a box.
+- Sensible request and response handling for audio, which is the part every
+  quick wrapper gets subtly wrong the first time.
+
+## Why on-device matters
+
+Running inference locally on ONNX Runtime rather than calling out to a hosted
+API changes the constraints in ways that matter more than the latency number:
+
+<Compare>
+  <Side kind="bad" label="hosted API">
+    Per-request cost, a rate limit somebody else controls, and every utterance
+    leaving the machine. Fine until any one of those is not fine.
+  </Side>
+  <Side kind="good" label="on-device">
+    Fixed cost, no quota, nothing leaves the host. You trade that against
+    managing the runtime yourself — which is what this repo is for.
+  </Side>
+</Compare>
+
+<Callout tone="tip">
+  The general lesson: when the model is small enough to run where the data
+  already is, a lot of architectural argument disappears. Check whether that is
+  true before designing around an API you do not control.
+</Callout>
+
+This sits alongside the smaller-model work I have been doing more generally —
+fine-tuning compact models to cut latency and cost on paths where a frontier
+model is overkill.

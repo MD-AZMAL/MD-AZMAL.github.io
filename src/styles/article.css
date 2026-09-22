@@ -1,0 +1,1187 @@
+/* ---------- reading progress ---------- */
+.readbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background: var(--orange);
+  transform-origin: 0 0;
+  transform: scaleX(0);
+  z-index: 90;
+}
+
+/* ---------- back button ----------
+   The "All posts" pill. On an article it sits in a notch cut out of the title
+   card's top-left corner (.art-back, below). */
+.close {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  padding: 6px 16px 6px 6px;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: border-color 0.2s;
+}
+.close:hover {
+  border-color: var(--ink);
+}
+.close i {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--bg);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-style: normal;
+  flex: none;
+}
+
+/* ---------- article layout ----------
+   The title card, the prose and the end matter all take the full width of
+   the page's .wrap - the same box the nav sits in, so their edges line up
+   with it. The contents are not in the flow at all: they are a rail fixed in
+   the margin outside .wrap. */
+.art-main {
+  /* The notch is cut to the back button's size, so the button's box is fixed
+     rather than left to its text. "All projects" needs the wider one. */
+  --back-w: 124px;
+  --back-h: 44px;
+  /* The button sits as far from the card as the cards sit from each other;
+     any closer and the notch's arcs pinch round it. */
+  --notch-gap: var(--gap);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+.art-main.wide-back {
+  --back-w: 140px;
+}
+/* The title card plus the two buttons seated in its corners. The buttons
+   cannot live inside the card: its clip-path would cut them off too. */
+.art-main .hero-wrap {
+  position: relative;
+}
+.art-main .art-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: var(--back-w);
+  height: var(--back-h);
+}
+/* Bottom right, in the second notch. Same height as the back button, so both
+   notches are cut to the same size and the same curves. */
+.art-main .hero-wrap > .share-dial {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  width: var(--back-h);
+  height: var(--back-h);
+}
+
+/* ---------- post hero ---------- */
+/* Two corners are carved out with clip-path: top left for the back button,
+   bottom right (a square, --nh each way) for the share dial. A clip-path cuts
+   the border off along the cut, so the border is redrawn:
+   the card itself is painted in the border colour, and ::before, inset 1px
+   and carrying the same notch, paints the fill over it. The ::before radii
+   are one pixel off the card's so the two outlines stay concentric - which is
+   also why the clip-path is declared on both rather than inherited: var() is
+   resolved on the element that declares it. */
+.art-main .hero-t {
+  --nw: calc(var(--back-w) + var(--notch-gap));
+  --nh: calc(var(--back-h) + var(--notch-gap));
+  --nr: var(--r);
+  --nc: calc(var(--back-h) / 2 + var(--notch-gap));
+  padding: calc(var(--nh) + 26px) 28px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 400px;
+  border: 0;
+  background: linear-gradient(var(--line), var(--line)), var(--card);
+  isolation: isolate;
+}
+.art-main .hero-t::before {
+  --nr: calc(var(--r) - 1px);
+  --nc: calc(var(--back-h) / 2 + var(--notch-gap) + 1px);
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: var(--card);
+  border-radius: calc(var(--r) - 1px);
+}
+/* Square-cut fallback. */
+.art-main .hero-t,
+.art-main .hero-t::before {
+  clip-path: polygon(
+    var(--nw) 0,
+    100% 0,
+    100% calc(100% - var(--nh)),
+    calc(100% - var(--nh)) calc(100% - var(--nh)),
+    calc(100% - var(--nh)) 100%,
+    0 100%,
+    0 var(--nh),
+    var(--nw) var(--nh)
+  );
+}
+/* Rounded notches where shape() exists. The convex corners take the card's
+   radius; each inner corner is concentric with its button's round end. */
+@supports (clip-path: shape(from 0 0, line to 1px 1px)) {
+  .art-main .hero-t,
+  .art-main .hero-t::before {
+    clip-path: shape(
+      from calc(var(--nw) + var(--nr)) 0,
+      line to 100% 0,
+      line to 100% calc(100% - var(--nh) - var(--nr)),
+      arc to calc(100% - var(--nr)) calc(100% - var(--nh)) of var(--nr) cw,
+      line to calc(100% - var(--nh) + var(--nc)) calc(100% - var(--nh)),
+      arc to calc(100% - var(--nh)) calc(100% - var(--nh) + var(--nc)) of var(--nc) ccw,
+      line to calc(100% - var(--nh)) calc(100% - var(--nr)),
+      arc to calc(100% - var(--nh) - var(--nr)) 100% of var(--nr) cw,
+      line to 0 100%,
+      line to 0 calc(var(--nh) + var(--nr)),
+      arc to var(--nr) var(--nh) of var(--nr) cw,
+      line to calc(var(--nw) - var(--nc)) var(--nh),
+      arc to var(--nw) calc(var(--nh) - var(--nc)) of var(--nc) ccw,
+      line to var(--nw) var(--nr),
+      arc to calc(var(--nw) + var(--nr)) 0 of var(--nr) cw,
+      close
+    );
+  }
+}
+.art-main .hero-t h1 {
+  font-weight: 500;
+  font-size: clamp(30px, 4vw, 56px);
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+  margin: 0 0 26px;
+}
+/* Sits tight under the title, as part of it, rather than as its own row. */
+.art-main .hero-t .byline {
+  margin: -12px 0 16px;
+  font-size: 14px;
+  color: var(--ink-3);
+}
+.art-main .hero-t .byline b {
+  color: var(--ink);
+  font-weight: 500;
+}
+/* The title and the dek run the card's full width, no measure cap. */
+.art-main .hero-t .dek {
+  color: var(--ink-2);
+  font-size: 16px;
+  line-height: 1.55;
+}
+/* Top right, across the notch from the back button. */
+.art-main .hero-t .hero-links {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+/* Foot: the tags. They stop short of the share dial's notch, bottom right. */
+.art-main .hero-t .hero-foot {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 22px;
+  margin-right: calc(var(--nh) + 12px - 28px);
+}
+.art-main .hero-t .hero-foot .tags {
+  flex: 1;
+  min-width: 0;
+}
+.art-main .hero-t .tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.art-main .hero-t .tags span,
+.art-main .hero-t .tags a {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--card-2);
+  color: var(--ink-2);
+}
+/* A post's tags are links to the blog filtered by that tag. */
+.art-main .hero-t .tags a {
+  transition: background 0.2s, color 0.2s;
+}
+.art-main .hero-t .tags a:hover {
+  background: var(--ink);
+  color: var(--bg);
+}
+/* The topic, first in the row: outlined rather than filled, so it reads as
+   what the piece is about rather than one more tag. The outline is an inset
+   shadow, not a border, so the pill stays the same height as the tags. */
+.art-main .hero-t .tags .topic {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--line-2);
+  color: var(--ink);
+}
+.art-main .hero-t .tags .topic:hover {
+  background: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+  color: var(--bg);
+}
+/* ---------- the title card's pills ----------
+   Live and Source sit top right as the same control. Only the emphasis
+   differs: Live takes the page's one orange fill, Source is outlined. */
+.art-main .hero-t .pill-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  padding: 5px 6px 5px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  transition: border-color 0.25s, background 0.25s, filter 0.25s;
+}
+.art-main .hero-t .pill-link:hover {
+  border-color: var(--ink);
+}
+.art-main .hero-t .pill-link i {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--bg);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-style: normal;
+  flex: none;
+  transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.art-main .hero-t .pill-link:hover i {
+  transform: rotate(45deg);
+}
+.art-main .hero-t .pill-link.live {
+  background: var(--orange);
+  border-color: transparent;
+  color: var(--on-orange);
+}
+.art-main .hero-t .pill-link.live:hover {
+  border-color: transparent;
+  filter: brightness(1.12);
+}
+.art-main .hero-t .pill-link.live i {
+  background: var(--on-orange);
+  color: var(--orange);
+}
+/* ---------- share dial ----------
+   The same round dial as a tile's corner arrow: outlined at rest, filled with
+   ink on hover. After a copy it takes the accent and shows a check. */
+.share-dial {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  margin-left: auto;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  background: var(--card);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+.share-dial svg {
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.share-dial:hover {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+.share-dial:hover svg {
+  transform: scale(1.08);
+}
+.share-dial.done,
+.share-dial.done:hover {
+  background: var(--card);
+  color: var(--orange);
+  border-color: var(--orange-line);
+}
+
+/* ---------- stat strip ---------- */
+.strip-stats {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+  margin-bottom: var(--gap);
+}
+.strip-stats .card {
+  grid-column: span 3;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.strip-stats b {
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.strip-stats small {
+  font-size: 12px;
+  color: var(--ink-2);
+}
+/* `accent` keeps the card neutral and puts the orange in the figure itself. */
+.strip-stats .accent b {
+  color: var(--orange);
+}
+
+/* Inside an article the column is much narrower than the page, so the stat
+   row sizes itself to fit instead of holding a rigid 12-column grid. */
+.prose .strip-stats {
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 10px;
+  margin: 20px 0 26px;
+}
+.prose .strip-stats .card {
+  grid-column: auto;
+  padding: 14px 16px;
+}
+.prose .strip-stats b {
+  font-size: 22px;
+}
+.prose .strip-stats small {
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* ---------- repo / live links ---------- */
+
+/* The body sits straight on the page background — boxing a whole article in a
+   card only adds a frame nobody reads. The panels inside it (code, callouts,
+   tables) keep their own surfaces, and that is what makes them read as panels. */
+.art-main .prose {
+  padding: 10px 0 8px;
+}
+
+/* ---------- prose ---------- */
+.prose h2 {
+  font-weight: 500;
+  font-size: 24px;
+  letter-spacing: -0.025em;
+  margin: 34px 0 12px;
+  scroll-margin-top: 100px;
+}
+.prose h2:first-child {
+  margin-top: 0;
+}
+.prose h3 {
+  font-weight: 500;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  margin: 22px 0 8px;
+  scroll-margin-top: 100px;
+}
+.prose p {
+  color: var(--ink-2);
+  font-size: 16px;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+.prose p strong,
+.prose li strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+.prose ul {
+  color: var(--ink-2);
+  padding-left: 18px;
+  margin-bottom: 16px;
+}
+.prose ol {
+  color: var(--ink-2);
+  padding-left: 20px;
+  margin-bottom: 16px;
+}
+.prose li {
+  margin-bottom: 6px;
+}
+.prose ol li {
+  margin-bottom: 8px;
+}
+.prose a {
+  color: var(--ink);
+  border-bottom: 1px solid var(--line-2);
+  transition: border-color 0.2s;
+}
+.prose a:hover {
+  border-color: var(--ink);
+}
+.prose code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--card-2);
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: var(--ink);
+}
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 34px 0;
+}
+.prose img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--r-s);
+  border: 1px solid var(--line);
+  margin: 22px 0;
+}
+.prose blockquote {
+  border-left: 3px solid var(--orange);
+  padding: 6px 0 6px 18px;
+  margin: 20px 0 24px;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: var(--ink);
+  max-width: 36ch;
+}
+.prose blockquote p {
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  margin: 0;
+  max-width: none;
+}
+.prose sup {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--orange);
+  margin-left: 2px;
+}
+
+/* Lead paragraph. Both selectors are needed because MDX may or may not wrap the
+   text in its own <p> depending on how the author wrote it. */
+.lead,
+.lead > p {
+  font-size: 19px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  line-height: 1.55;
+}
+.lead > p {
+  margin: 0 0 16px;
+  max-width: none;
+}
+/* ---------- code blocks ---------- */
+.prose pre {
+  background: #000;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  padding: 18px 20px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: #d6d6dc;
+  overflow-x: auto;
+  margin: 18px 0 22px;
+}
+.prose pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+  color: inherit;
+  display: grid;
+}
+.prose figure[data-rehype-pretty-code-figure] {
+  margin: 0;
+}
+.prose [data-rehype-pretty-code-title] {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: var(--r-s) var(--r-s) 0 0;
+  padding: 10px 16px;
+  margin-top: 18px;
+}
+.prose [data-rehype-pretty-code-title] + pre {
+  margin-top: 0;
+  border-radius: 0 0 var(--r-s) var(--r-s);
+}
+.prose code[data-line-numbers] {
+  counter-reset: line;
+}
+.prose code[data-line-numbers] > [data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 1.4rem;
+  margin-right: 1.2rem;
+  text-align: right;
+  color: var(--ink-3);
+}
+.prose [data-line] {
+  padding: 0 2px;
+}
+.prose [data-highlighted-line] {
+  background: rgba(255, 90, 31, 0.12);
+  box-shadow: inset 2px 0 0 var(--orange);
+}
+.prose mark[data-highlighted-chars] {
+  background: rgba(255, 90, 31, 0.22);
+  color: inherit;
+  border-radius: 4px;
+  padding: 1px 2px;
+}
+
+/* ---------- callout ---------- */
+.callout {
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  padding: 16px 18px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: start;
+  margin: 20px 0;
+  color: var(--ink-2);
+  font-size: 14px;
+}
+.callout > i {
+  width: 12px;
+  height: 12px;
+  transform: rotate(45deg);
+  margin-top: 5px;
+  flex: none;
+}
+/* The tone is carried by the marker alone, in the only accent there is: grey
+   for context, an orange outline for a tip, solid orange for a warning. */
+.callout.note > i { background: var(--ink-3); }
+.callout.tip > i { border: 2px solid var(--orange); }
+.callout.warn > i { background: var(--orange); }
+.callout p {
+  color: inherit;
+  font-size: inherit;
+  margin: 0 0 8px;
+  max-width: none;
+  line-height: 1.6;
+}
+.callout p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- figures & diagrams ---------- */
+.prose figure.fig-block {
+  margin: 26px 0 30px;
+  /* A full-width figure must not slide under a floated margin note. */
+  clear: both;
+}
+/* A screenshot inside a figure: the figure's panel is already the frame, so the
+   image drops the border and margin every other prose image gets. */
+.fig > img {
+  margin: 0;
+  border: 0;
+  border-radius: 6px;
+}
+.fig {
+  background: #000;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  padding: 18px;
+  overflow: hidden;
+}
+.fig svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+figcaption {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-top: 10px;
+  line-height: 1.6;
+}
+figcaption b {
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+/* SVG diagram primitives, for hand-drawn figures inside MDX */
+.d-line {
+  stroke: rgba(243, 243, 241, 0.45);
+  stroke-width: 1;
+  fill: none;
+}
+.d-box {
+  fill: #141417;
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 1;
+}
+.d-box.o { fill: var(--orange); stroke: none; }
+.d-t {
+  font-family: var(--sans);
+  font-size: 12px;
+  fill: var(--ink);
+  font-weight: 500;
+}
+.d-t.dk { fill: #0a0a0c; }
+.d-t.sm { font-size: 10px; fill: var(--ink-2); font-weight: 400; }
+.d-m {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  fill: var(--ink-3);
+}
+.d-acc {
+  stroke: var(--orange);
+  stroke-width: 1.5;
+  fill: none;
+}
+.d-dash {
+  stroke-dasharray: 3 4;
+}
+
+/* draw-on animation */
+.draw path,
+.draw line,
+.draw polyline,
+.draw rect,
+.draw circle {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.draw[data-in] path,
+.draw[data-in] line,
+.draw[data-in] polyline,
+.draw[data-in] rect,
+.draw[data-in] circle {
+  stroke-dashoffset: 0;
+}
+.draw text {
+  opacity: 0;
+  transition: opacity 0.5s ease 1s;
+}
+.draw[data-in] text {
+  opacity: 1;
+}
+
+/* ---------- tables ---------- */
+.tbl-wrap {
+  overflow-x: auto;
+}
+.tbl,
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 18px 0 26px;
+}
+.tbl th,
+.prose th {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-3);
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line-2);
+  white-space: nowrap;
+}
+.tbl td,
+.prose td {
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-2);
+  vertical-align: top;
+}
+.tbl td:first-child,
+.prose td:first-child {
+  color: var(--ink);
+  font-weight: 500;
+}
+.tbl .chip {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+}
+/* Neutral by default; `o` marks the one row that matters. */
+.tbl .chip.o { border-color: var(--orange); color: var(--orange); }
+
+/* ---------- key takeaways ---------- */
+/* ---------- key takeaways ----------
+   A neutral panel; the accent is only in the label and the numerals. Articles
+   carry no filled orange surface — a full orange block reads as the loudest
+   thing on the page and turns the takeaways into an alarm. MDX wraps a
+   multi-line list item in its own <p>, so the rules below are written
+   `.prose .keys …` to outrank `.prose p` and `.prose li strong`, not merely
+   follow them. */
+.keys {
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  padding: 20px 22px;
+  margin: 26px 0;
+}
+.keys .k {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--orange);
+  margin-bottom: 12px;
+}
+.prose .keys ol,
+.prose .keys ul {
+  color: var(--ink-2);
+  padding-left: 22px;
+  margin: 0;
+  max-width: none;
+  font-weight: 400;
+}
+.prose .keys li {
+  margin-bottom: 10px;
+}
+.prose .keys li:last-child {
+  margin-bottom: 0;
+}
+.prose .keys li::marker {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--orange);
+}
+.prose .keys p {
+  color: var(--ink-2);
+  max-width: none;
+  margin: 0;
+}
+.prose .keys strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ---------- two-up compare ---------- */
+.two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 18px 0 24px;
+}
+.two .card {
+  padding: 16px 18px;
+  background: var(--card-2);
+}
+.two .card .k {
+  font-family: var(--mono);
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+/* The side worth reading takes the accent; the other steps back. */
+.two .card.bad .k { color: var(--ink-3); }
+.two .card.good .k { color: var(--orange); }
+.two .card p {
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.55;
+  max-width: none;
+}
+
+/* ---------- margin note ---------- */
+.aside-note {
+  float: right;
+  width: 38%;
+  margin: 6px 0 14px 22px;
+  border-left: 1px solid var(--line-2);
+  padding-left: 14px;
+}
+.aside-note,
+.aside-note > p {
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+.aside-note > p {
+  margin: 0 0 8px;
+  max-width: none;
+}
+.aside-note > p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- footnotes ---------- */
+.fn {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.fn ol {
+  padding-left: 18px;
+  font-size: 13px;
+}
+.fn li {
+  margin-bottom: 8px;
+}
+
+/* ---------- contents rail ----------
+   Fixed in the margin outside .wrap, at the window's left edge. A dash per
+   section; the one being read turns orange and its dash grows. That margin is
+   (window - --max) / 2 plus .wrap's gutter, and the rail sizes to it:
+   - narrow (< 900px): the margin is too thin even for dashes, so the list
+     drops into the flow below the article.
+   - dashes (900 - 1269, the default rules): short dashes hugging the edge,
+     sized to clear the margin; hover or keyboard focus opens the headings on
+     a panel over the page.
+   - headings (>= 1270px): the margin holds ~100px of heading, so they show,
+     the rail as wide as the margin allows. A heading that does not fit is cut
+     with an ellipsis, and hovering the rail opens it out in full.
+   - whole headings (>= 1820px): the margin holds the longest heading, so
+     nothing is cut and hover needs no panel.
+   900, 1270 and 1820 are derived from --max (media queries cannot read it);
+   move them if --max changes. */
+.art-side {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+}
+.toc {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px 10px 5px;
+  border: 1px solid transparent;
+  border-left: 0;
+  border-radius: 0 var(--r-s) var(--r-s) 0;
+  font-size: 13px;
+  line-height: 1.4;
+  transition: background 0.25s, border-color 0.25s;
+}
+.toc a {
+  display: flex;
+  align-items: flex-start;
+  padding: 5px 0;
+  color: var(--ink-3);
+  transition: color 0.2s;
+}
+.toc a:hover {
+  color: var(--ink);
+}
+.toc a.on {
+  color: var(--orange);
+}
+.toc a i {
+  flex: none;
+  width: 10px;
+  height: 1.5px;
+  margin-top: calc(0.7em - 0.75px);
+  background: currentColor;
+  transition: width 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.toc a.sub i {
+  width: 6px;
+}
+.toc a.on i {
+  width: 20px;
+}
+.toc a span {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: max-width 0.35s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.2s, margin 0.35s;
+}
+.toc a.sub span {
+  font-size: 12px;
+}
+.toc:hover,
+.toc:focus-within {
+  background: var(--card);
+  border-color: var(--line-2);
+}
+.toc:hover span,
+.toc:focus-within span {
+  max-width: 340px;
+  opacity: 1;
+  margin-left: 12px;
+}
+
+/* Headings stay on one line: the rail takes as much width as its longest one
+   needs, up to the margin outside .wrap (16px off the window edge, 16px clear
+   of the column); past that, the ellipsis. */
+@media (min-width: 1270px) {
+  .art-side {
+    left: 16px;
+  }
+  .toc {
+    max-width: calc((100vw - var(--max)) / 2 + var(--gutter) - 32px);
+    padding: 10px 14px;
+    border-left: 1px solid transparent;
+    border-radius: var(--r-s);
+  }
+  .toc a i {
+    width: 16px;
+  }
+  .toc a.sub i {
+    width: 8px;
+  }
+  .toc a.on i {
+    width: 40px;
+  }
+  .toc a span {
+    max-width: none;
+    opacity: 1;
+    margin-left: 14px;
+  }
+  /* Lifts the width cap so a cut heading reads in full, on the panel the
+     default rules already give the hovered rail. */
+  .toc:hover,
+  .toc:focus-within {
+    max-width: 420px;
+  }
+}
+@media (min-width: 1820px) {
+  .toc:hover,
+  .toc:focus-within {
+    background: none;
+    border-color: transparent;
+  }
+}
+
+/* The inline contents (Toc inline): hidden wherever the rail has room. */
+.toc-inline {
+  display: none;
+}
+
+/* No rail under 900px: the list moves up, collapsed, between the title card
+   and the text - at the end of the piece it was no use to anyone. */
+@media (max-width: 899px) {
+  .art-side {
+    display: none;
+  }
+  .toc-inline {
+    display: block;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .toc-inline summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 2px;
+    list-style: none;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+  .toc-inline summary::-webkit-details-marker {
+    display: none;
+  }
+  .toc-inline summary::after {
+    content: '+';
+    font-size: 16px;
+    line-height: 1;
+    color: var(--ink-2);
+  }
+  .toc-inline[open] summary::after {
+    content: '\2212';
+  }
+  .toc-inline .toc {
+    padding-bottom: 12px;
+  }
+  .toc {
+    padding: 0;
+    border: 0;
+  }
+  .toc a i {
+    width: 16px;
+  }
+  .toc a.sub i {
+    width: 8px;
+  }
+  .toc a.on i {
+    width: 40px;
+  }
+  .toc a span {
+    max-width: none;
+    opacity: 1;
+    margin-left: 14px;
+    white-space: normal;
+  }
+  .toc:hover,
+  .toc:focus-within {
+    background: none;
+  }
+}
+
+.series .k {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+}
+.series a {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.series a.on {
+  color: var(--ink);
+}
+.series a span {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-3);
+  flex: none;
+}
+
+/* ---------- end matter ---------- */
+.prev-next {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: var(--gap);
+  flex-wrap: wrap;
+}
+.prev-next a {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px;
+  flex: 1;
+  min-width: 240px;
+}
+.prev-next a small {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.prev-next a b {
+  font-weight: 400;
+  font-size: 15px;
+}
+.prev-next a.r {
+  text-align: right;
+}
+
+.end {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+  margin-top: var(--gap);
+}
+/* The related pieces share a row; the call to action takes the full width
+   under them, heading on the left and button on the right. */
+.end .post {
+  grid-column: span 6;
+}
+/* Neutral like every other card in an article; the orange lives in the button,
+   which is the thing the reader is meant to press. */
+.end .cta-s {
+  grid-column: 1 / -1;
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.end .cta-s h3 {
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.end .cta-s .btn {
+  flex: none;
+}
+
+@media (max-width: 860px) {
+  .strip-stats .card {
+    grid-column: span 6;
+  }
+  .two {
+    grid-template-columns: 1fr;
+  }
+  .aside-note {
+    float: none;
+    width: auto;
+    margin: 0 0 14px;
+  }
+  .end .post,
+  .end .cta-s {
+    grid-column: 1 / -1;
+  }
+  .prev-next {
+    flex-direction: column;
+  }
+  .prev-next a.r {
+    text-align: left;
+  }
+}
+
+@media (max-width: 600px) {
+  .art-main .hero-t {
+    padding: calc(var(--nh) + 18px) 22px 22px;
+    min-height: 0;
+  }
+  .art-main .hero-t h1 {
+    margin-bottom: 18px;
+  }
+  .art-main .hero-t .hero-foot {
+    margin-right: calc(var(--nh) + 12px - 22px);
+  }
+  /* A phone card is too narrow to fit the pills beside the notch, so they
+     drop into the flow above the title. */
+  .art-main .hero-t .hero-links {
+    position: static;
+    justify-content: flex-start;
+    margin-bottom: 18px;
+  }
+  .strip-stats .card {
+    grid-column: 1 / -1;
+  }
+  .prose blockquote {
+    font-size: 18px;
+  }
+  .lead {
+    font-size: 17px !important;
+  }
+  /* A hand-drawn diagram is set at 12px in a ~640-wide viewBox; squeezed to
+     a phone it would drop to 6px. It keeps a minimum width instead and
+     scrolls sideways inside its frame, so the labels stay near 10.5px. */
+  .fig {
+    overflow-x: auto;
+  }
+  .fig > svg {
+    min-width: 560px;
+  }
+}

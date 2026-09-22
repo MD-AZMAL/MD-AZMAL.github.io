@@ -1,0 +1,184 @@
+---
+# ---------------------------------------------------------------------------
+# Copy this file to content/blog/<your-slug>.mdx — the filename becomes the URL
+# (/blog/your-slug). Set draft: false when it is ready to publish.
+#
+# Drafts render at http://localhost:5173 during `pnpm dev` and are stripped out
+# of production builds, so an unfinished post can sit in the repo safely.
+# ---------------------------------------------------------------------------
+
+# Required ------------------------------------------------------------------
+title: Everything this blog can do
+description: A working reference for the post format — frontmatter, components, code, diagrams and tables. Copy it, gut it, write.
+date: 2026-09-20            # ISO. Drives ordering and the displayed month.
+topic: ai                   # ai | security | blockchain | platform | craft
+
+# Optional ------------------------------------------------------------------
+draft: true                 # true = dev only. Set to false to publish.
+tags: [mdx, reference]      # Shown as pills under the title; also searchable.
+# thumb: g3                 # g1…g6. Omit to use the topic's art (or one picked from the slug).
+# updated: 2026-10-01       # Adds "Updated …" to the header.
+# readingTime: 7            # Overrides the automatic word-count estimate.
+---
+
+Everything below renders exactly as it will in a real post once copied. This
+file itself never appears on the site. Delete what you do not need.
+
+## Frontmatter and structure
+
+`##` headings become the numbered table of contents in the sidebar, and `###`
+headings nest underneath. Reading time and the contents list are derived from
+this file at build time — there is nothing to keep in sync by hand.
+
+<Lead>
+  Wrap the opening paragraph in `<Lead>` for the larger type. One per post, at
+  the very top, or leave it out entirely.
+</Lead>
+
+Ordinary markdown works as expected: **bold**, *italic*, `inline code`,
+[links](https://github.com/MD-AZMAL), lists, and footnote markers<sup>1</sup>.
+Internal links like [the projects page](/projects) stay client-side
+automatically.
+
+> A blockquote is styled as a pull quote — short, declarative, one idea.
+
+## Code
+
+Fenced blocks are highlighted at build time by Shiki, in a theme matched to the
+site palette. No highlighting JavaScript is sent to the browser.
+
+```ts title="contracts/transfer.ts"
+export const transferFunds: ToolContract = {
+  name: 'transfer_funds',
+  input: z.object({ to: z.string().uuid(), amount: z.number().positive() }),
+  effect: 'irreversible',        // read | write | irreversible
+  retry: { max: 0 },             // never auto-retry
+  requires: ['human_ack'],
+}
+```
+
+The `title=` attribute is optional and renders a filename bar above the block.
+Highlight specific lines with `{2,4-6}` after the language, and specific
+substrings by wrapping them in `[[ ]]` — see the rehype-pretty-code docs.
+
+## Callouts
+
+<Callout tone="note">
+  `note` is the default — a grey diamond. Use it for context the reader can skip.
+</Callout>
+
+<Callout tone="tip">
+  `tip` has an orange outline. Use it for the thing you wish someone had told you.
+</Callout>
+
+<Callout tone="warn">
+  `warn` is solid orange. Use it sparingly, for things that will actually bite.
+</Callout>
+
+## Comparisons and asides
+
+<Compare>
+  <Side kind="bad" label="before">
+    The naive version, described honestly. Being fair to it is what makes the
+    other column persuasive.
+  </Side>
+  <Side kind="good" label="after">
+    What you changed, and the property that changed with it.
+  </Side>
+</Compare>
+
+<Note>
+  `<Note>` floats a margin note to the right on wide screens and folds inline on
+  narrow ones. Good for a caveat you do not want interrupting the sentence.
+</Note>
+
+Regular paragraphs flow around the margin note, which is the point of it. Keep
+notes short or they outrun the paragraph they belong to.
+
+## Numbers
+
+<Stats>
+  <Stat value="3" label="effect classes" />
+  <Stat value="1" label="place policy is enforced" tone="accent" />
+  <Stat value="0" label="auto-retries on writes" />
+  <Stat value="100%" label="of runs replayable" />
+</Stats>
+
+`<Stats>` renders a row of up to four cards, always neutral. `tone="accent"`
+sets one figure in orange — use it on the number the post is about, not on
+every card.
+
+## Tables
+
+Markdown tables pick up the article styling and scroll horizontally on small
+screens. `<Chip>` gives you small neutral pills; `tone="o"` marks the one row
+that matters.
+
+| Effect | Meaning | Default retry | Needs ack |
+| --- | --- | --- | --- |
+| <Chip>read</Chip> | No observable change outside the runtime. | 3, exponential | No |
+| <Chip>write</Chip> | Changes state another tool can undo. | 1, idempotent | Configurable |
+| <Chip tone="o">irreversible</Chip> | Cannot be undone safely. | 0 | Always |
+
+## Diagrams
+
+Diagrams are hand-written SVG using the site's primitive classes, so they are
+sharp at any size, theme-correct, and weigh nothing. Give each stroked element
+`pathLength="1"` and it draws itself in as the figure scrolls into view.
+
+<Figure
+  label="Figure 1."
+  caption="Available classes: d-box (with .o for the one orange fill), d-line, d-acc, d-dash, d-t (with .dk .sm), d-m for mono labels."
+>
+  <svg viewBox="0 0 640 200">
+    <defs>
+      <marker id="tpl-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0L10 5 0 10z" fill="rgba(243,243,241,.6)" />
+      </marker>
+    </defs>
+
+    <rect x="20" y="24" width="600" height="150" rx="18" className="d-line d-dash" pathLength="1" />
+    <text x="36" y="48" className="d-m">PIPELINE</text>
+
+    <rect x="48" y="78" width="120" height="48" rx="12" className="d-box" pathLength="1" />
+    <text x="86" y="107" className="d-t">plan</text>
+
+    <rect x="216" y="78" width="120" height="48" rx="12" className="d-box o" pathLength="1" />
+    <text x="252" y="107" className="d-t dk">gate</text>
+
+    <rect x="384" y="78" width="120" height="48" rx="12" className="d-box" pathLength="1" />
+    <text x="426" y="107" className="d-t">act</text>
+
+    <line x1="168" y1="102" x2="216" y2="102" className="d-line" pathLength="1" markerEnd="url(#tpl-arrow)" />
+    <line x1="336" y1="102" x2="384" y2="102" className="d-line" pathLength="1" markerEnd="url(#tpl-arrow)" />
+    <path d="M504 126 V150 H276 V126" className="d-acc d-dash" pathLength="1" />
+    <text x="286" y="147" className="d-m">observe, then loop</text>
+  </svg>
+</Figure>
+
+Pass `draw={false}` to a `<Figure>` if the animation is distracting, and drop
+`caption` entirely for an undecorated panel.
+
+## Images
+
+Images from `public/` work with plain markdown and get the article's border and
+radius automatically:
+
+`![Alt text that describes the image](/some-screenshot.png)`
+
+## Closing
+
+<Keys>
+  <ol>
+    <li>Lead with the claim, not the setup.</li>
+    <li>Use a diagram when the shape is the argument.</li>
+    <li>Cut the section you are least sure about.</li>
+  </ol>
+</Keys>
+
+<Footnotes>
+  <ol>
+    <li>Footnote markers are written as <code>{'<sup>1</sup>'}</code> inline; this block renders the notes with a divider above them.</li>
+    <li>They are not automatically numbered — keep them in order yourself.</li>
+  </ol>
+</Footnotes>

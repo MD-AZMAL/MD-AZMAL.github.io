@@ -1,0 +1,55 @@
+---
+title: Voicebox
+description: Realtime voice rooms on the web — create a room, share the link, talk. Next.js on the front, Go on the signalling path.
+period: 2024
+year: 2024
+status: 4 stars
+topic: platform
+stack: [TypeScript, Next.js, Go, WebRTC, Vercel]
+featured: true
+order: 2
+thumb: g2
+repo: https://github.com/MD-AZMAL/voicebox
+link: https://voicebox-opal.vercel.app
+---
+
+<Lead>
+Voice chat looks like a solved problem until you try to build one. The audio is
+the easy part — browsers hand you that. What you actually end up writing is a
+signalling server, a room lifecycle, and a great deal of care about what happens
+when somebody's network drops mid-sentence.
+</Lead>
+
+Voicebox is a small, complete answer to that: users create a voice room, share
+the link, and talk. No accounts, no install.
+
+## Shape of it
+
+The split is deliberate and follows what each side is good at.
+
+| Piece | Runs on | Job |
+| --- | --- | --- |
+| Web client | Next.js on Vercel | Room UI, device permissions, peer connections |
+| Signalling | Go | Room registry, peer discovery, offer/answer relay |
+| Media | Browser to browser | Audio never touches the server |
+
+Keeping media peer-to-peer is what makes the whole thing deployable on a free
+tier. The Go service only ever moves small JSON messages, so it stays cheap and
+boring under load — which is exactly what you want from the component that
+everybody depends on.
+
+<Callout tone="tip">
+  The thing worth stealing from this project is the room lifecycle, not the
+  WebRTC code. Deciding when a room exists, when it is empty, and who is allowed
+  to resurrect it is where most of the real bugs live.
+</Callout>
+
+## What I took from it
+
+Coming off two years of service-mesh and Kubernetes work at IMESH, this was a
+deliberate change of altitude: no cluster, no control plane, just a protocol and
+two processes. It was a useful reminder that most of the difficulty in
+distributed systems is not scale — it is agreeing on state between parties that
+can disappear without warning.
+
+That problem does not go away when the parties are models instead of browsers.

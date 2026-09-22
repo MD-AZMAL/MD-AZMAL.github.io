@@ -1,0 +1,93 @@
+---
+title: Energy Blocks
+description: Frequency-based electricity billing on Hyperledger Fabric — the production shape of a smart-grid power-sharing ledger, built as a research intern at IIT Kanpur.
+period: 2019 – 2022
+year: 2022
+status: 4 stars
+topic: blockchain
+stack: [Hyperledger Fabric, JavaScript, Node.js, Chaincode, Docker]
+featured: true
+order: 3
+thumb: g4
+repo: https://github.com/MD-AZMAL/Energy-Blocks-App
+---
+
+<Lead>
+On a micro-grid, two neighbours trading electricity is not an accounting
+problem. It is a control problem wearing accounting's clothes. Supply and demand
+have to meet at the right frequency, and a ledger that records only money has
+recorded only half of what happened.
+</Lead>
+
+Energy Blocks came out of a cybersecurity research internship at the **C3i
+Center, IIT Kanpur**, where the question was whether a permissioned ledger could
+make power sharing between households both verifiable and billable.
+
+## Why the frequency is on the ledger
+
+A transaction here is a transfer of kilowatt-hours *at a frequency band*. That
+second half is the interesting part. Grid frequency is the shared signal that
+tells you whether the system is balanced: drifting low means demand is outrunning
+supply. If the band is recorded alongside the energy, then billing and grid
+health are answerable from the same source of truth, and nobody has to be
+trusted to report either one honestly afterwards.
+
+<Figure
+  label="Figure 1."
+  caption="A share transaction carries energy and the band it happened in. Billing folds shares per band per cycle, so a dispute has a single place to be settled."
+>
+  <svg viewBox="0 0 640 210">
+    <defs>
+      <marker id="eb-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0L10 5 0 10z" fill="rgba(243,243,241,.6)" />
+      </marker>
+    </defs>
+    <rect x="20" y="30" width="600" height="150" rx="18" className="d-line d-dash" pathLength="1" />
+    <text x="36" y="54" className="d-m">PERMISSIONED NETWORK</text>
+
+    <rect x="44" y="76" width="118" height="50" rx="12" className="d-box" pathLength="1" />
+    <text x="66" y="100" className="d-t">household A</text>
+    <text x="66" y="116" className="d-t sm">surplus</text>
+
+    <rect x="478" y="76" width="118" height="50" rx="12" className="d-box" pathLength="1" />
+    <text x="502" y="100" className="d-t">household B</text>
+    <text x="502" y="116" className="d-t sm">demand</text>
+
+    <rect x="240" y="70" width="160" height="62" rx="14" className="d-box o" pathLength="1" />
+    <text x="266" y="94" className="d-t dk">share tx</text>
+    <text x="266" y="112" className="d-t dk sm" style={{ fill: '#180800' }}>kWh - band - timestamp</text>
+
+    <path d="M162 101 H240" className="d-line" pathLength="1" markerEnd="url(#eb-arrow)" />
+    <path d="M400 101 H478" className="d-line" pathLength="1" markerEnd="url(#eb-arrow)" />
+    <path d="M320 132 V158 H92 V126" className="d-acc d-dash" pathLength="1" />
+    <text x="330" y="156" className="d-m">rejected if band is outside tolerance</text>
+  </svg>
+</Figure>
+
+## Why Fabric
+
+The first version of this idea ([Electrify](https://github.com/MD-AZMAL/Electrify)) ran on a
+blockchain engine I wrote from scratch, and it was the right way to learn the
+problem. It was the wrong way to run it.
+
+<Compare>
+  <Side kind="bad" label="from scratch">
+    Proof-of-work across four nodes is theatre. Clock drift between small devices
+    makes block ordering ambiguous. Gossip without back-pressure floods the
+    slowest participant first.
+  </Side>
+  <Side kind="good" label="Hyperledger Fabric">
+    Permissioned membership, a pluggable ordering service, and chaincode that
+    can be unit-tested like ordinary code. All the properties the toy version
+    was silently missing.
+  </Side>
+</Compare>
+
+Writing the naive engine first was still worth it. It told me which properties I
+actually needed before a framework hid them from me — which is the same reason I
+now prefer to write a thin version of any runtime before adopting one.
+
+<Callout tone="note">
+  Source and deployment scripts are on GitHub. The chaincode is the part worth
+  reading; the surrounding app is a thin client over it.
+</Callout>

@@ -1,0 +1,555 @@
+---
+title: "Jev vs GPT at chess: dead even, at a twelfth of the price"
+description: I vibe coded a chess game and put Jev up against gpt-5.4-mini. Unplayable at first, dead even once it got the list of legal moves, and a pretty good lesson in what Jev is actually for.
+date: 2026-09-21
+topic: ai
+tags: [jev, gpt, llm, harness]
+link: https://agent-chess-sim.netlify.app/
+repo: https://github.com/MD-AZMAL/agent-chess-sim
+---
+
+<Lead>
+  There's been quite some talk about Jev, and I've seen countless slop around
+  it, so this is my contribution to the slop.
+</Lead>
+
+Kidding. Mostly. What I actually think is overkill for most people is seeing
+Jev drive a vehicle, play Doom and do stuff. I mean, yes, it's a sort of
+"classifier", but does it truly hold up?
+
+So, this article is not a technical deep dive into Jev, but rather an
+experiment to see if it actually stands. That said, the core use case of Jev,
+as a classifier / router is phenomenal, which you'll see soon.
+
+So, I vibe coded a chess simulator and put Jev against GPT. To keep things fair
+(and under budget), I picked `gpt-5.4-mini` to go up against Jev.
+
+## Wiring it up
+
+I grabbed Claude and asked it for a very basic chess game, plus a way for Jev
+and GPT to face each other. To keep things fair (the best I could), I made
+sure the state going in and the output coming out were the same for both Jev
+and GPT.
+
+So, I wired the state as follows:
+
+```jsonc title="the first attempt - one request, two questions"
+{
+  "model": "jev-latest",
+  "state": {
+    "board": {
+      "e8": "black king",
+      "d8": "black queen",
+      "e4": "white pawn" /* …every occupied square */,
+    },
+    "color": "black",
+    "history": ["1. white pawn e2-e4 (e4)"],
+    "comments": "",
+  },
+  "questions": {
+    // which piece? one option per piece you still have
+    "selected_piece": {
+      "type": "choice",
+      "criteria": {
+        /* your 16 pieces */
+      },
+    },
+    // where to? one option per square on the board
+    "move_to_block": {
+      "type": "choice",
+      "criteria": {
+        /* all 64 squares */
+      },
+    },
+  },
+}
+```
+
+The state is just the facts: what's on each square, whose turn it is, the moves
+so far, and a `comments` field where I could talk back to the model. The output
+was two answers: which piece to move, and where to move it.
+
+## Everything wired up, time to test it
+
+And guess what? Jev failed miserably. The first few moves already looked almost
+random, and after that every other move was illegal. GPT threw in a few illegal
+moves too, but Jev was unplayable after the first couple of turns, even after I
+spelled it out that the previous move X was illegal.
+
+{/* Screenshot of the illegal moves goes here: none of the recordings show the early versions. */}
+
+<Figure
+  label="Figure 1."
+  caption="The first version. The model builds the move out of two separate answers, and my engine can only reject it after the fact. A retry sends almost the same request, so Jev mostly made the same pick again."
+>
+  <svg viewBox="0 0 640 152">
+    <defs>
+      <marker id="jev-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0L10 5 0 10z" fill="rgba(243,243,241,.6)" />
+      </marker>
+    </defs>
+
+    <text x="24" y="30" className="d-m">BEFORE - THE MODEL BUILDS THE MOVE</text>
+
+    <rect x="24" y="46" width="128" height="52" rx="12" className="d-box" pathLength="1" />
+    <text x="40" y="70" className="d-t">which piece?</text>
+    <text x="40" y="86" className="d-t sm">model - 16 options</text>
+
+    <rect x="184" y="46" width="128" height="52" rx="12" className="d-box" pathLength="1" />
+    <text x="200" y="70" className="d-t">which square?</text>
+    <text x="200" y="86" className="d-t sm">model - 64 options</text>
+
+    <rect x="344" y="46" width="128" height="52" rx="12" className="d-box" pathLength="1" />
+    <text x="360" y="70" className="d-t">legal?</text>
+    <text x="360" y="86" className="d-t sm">engine, too late</text>
+
+    <rect x="504" y="46" width="112" height="52" rx="12" className="d-box" pathLength="1" />
+    <text x="520" y="76" className="d-t">play</text>
+
+    <line x1="152" y1="72" x2="184" y2="72" className="d-line" pathLength="1" markerEnd="url(#jev-arrow)" />
+    <line x1="312" y1="72" x2="344" y2="72" className="d-line" pathLength="1" markerEnd="url(#jev-arrow)" />
+    <line x1="472" y1="72" x2="504" y2="72" className="d-line" pathLength="1" markerEnd="url(#jev-arrow)" />
+    <path d="M408 98 V122 H88 V98" className="d-line d-dash" pathLength="1" markerEnd="url(#jev-arrow)" />
+    <text x="170" y="138" className="d-m">illegal → retry, up to 4× — usually the same pick</text>
+
+  </svg>
+</Figure>
+
+This is when, for me, all those self-driving simulations and Jev playing Doom
+started to look gimmicky. And to some extent it was clear that Jev is nothing
+without the underlying homies.
+
+Looking back, it kinda makes sense. Jev answers the questions in a request
+independently, so the square question had no clue which piece I'd picked. After
+1.e4, Black has 16 × 64 = 1,024 piece-and-square pairs, and only 20 of them are
+legal moves. On top of that, figuring out where a knight can go from a list of
+squares is multi-step geometry. And retrying didn't help either: it went for Nc3-a6 four
+times in a row. Commitment, I guess.
+
+## Giving it the legal moves
+
+To make sure no illegal move could ever happen, I changed a few things around.
+The state stayed as it was, with one extra thing: a list of every legal move you
+can play this turn.
+
+Here's the whole turn. My code builds it once, and both models get it:
+
+```jsonc title="moveStep() - the turn, built once for both"
+{
+  "prompt": "You are chess grandmaster, its your turn, look at the board and history and color and play the next move. The options are all your legal moves.",
+  "state": {
+    "board": {
+      "f8": "black bishop",
+      "g8": "black knight",
+      "e7": "black king",
+      "e2": "white king" /* …every occupied square */,
+    },
+    "color": "white",
+    "history": [
+      /* … */ "30. white king d1-e2 (Ke2)",
+      "30... black king d7-e7 (Ke7)",
+    ],
+    "comments": "",
+  },
+  "question": "Which move do you play?",
+  // every legal move, and nothing else
+  "options": {
+    "e2d1": "Kd1: white king e2-d1",
+    "e2e3": "Ke3: white king e2-e3",
+    "e2f1": "Kf1: white king e2-f1",
+    "a2a3": "a3: white pawn a2-a3",
+    // …
+  },
+}
+```
+
+Each model then gets that exact object, just packed into its own API's format.
+Jev takes the state as is, with the move as a typed Choice question and the
+legal moves as its criteria:
+
+```jsonc title="what jev gets" {3,7-8}
+{
+  "model": "jev-latest",
+  "state": {
+    "board": {
+      /* … */
+    },
+    "color": "white",
+    "history": [
+      /* … */
+    ],
+    "comments": "",
+  },
+  "questions": {
+    "move": {
+      "type": "choice",
+      "instructions": {
+        "prompt": "You are chess grandmaster, …",
+        "question": "Which move do you play?",
+      },
+      "criteria": {
+        "e2d1": "Kd1: white king e2-d1",
+        "e2e3": "Ke3: white king e2-e3" /* …every legal move */,
+      },
+    },
+  },
+}
+```
+
+GPT gets the same prompt as its instructions, and the same state and question as
+its input:
+
+```jsonc title="what gpt gets" {3,6,8}
+{
+  "model": "gpt-5.4-mini",
+  "instructions": "You are chess grandmaster, …",
+  // sent as a JSON string, unpacked here so you can read it
+  "input": {
+    "state": {
+      "board": {
+        /* … */
+      },
+      "color": "white",
+      "history": [
+        /* … */
+      ],
+      "comments": "",
+    },
+    "questions": {
+      "move": {
+        "question": "Which move do you play?",
+        "options": {
+          "e2d1": "Kd1: white king e2-d1",
+          "e2e3": "Ke3: white king e2-e3" /* …every legal move */,
+        },
+      },
+    },
+  },
+  "text": {
+    "format": {
+      "type": "json_schema",
+      "name": "move",
+      "strict": true,
+      "schema": {
+        /* the answer schema, below */
+      },
+    },
+  },
+}
+```
+
+Same prompt, same state, same question, same list of moves. Only the envelope
+changes. And it's not just me pinky-promising it's fair: there's a test in the
+repo that fails the moment the two drift apart.
+
+```ts title="tests/gpt.test.ts - trimmed"
+test("choice mode: Jev and GPT get the same prompt, state, question and legal moves", () => {
+  const step = moveStep(playSan(inMode("1vgpt"), "e4"));
+  const jevQ = jevRequest(step).questions.move;
+  const body = gptRequest(step, DEFAULT_GPT_MODEL);
+
+  assert.equal(body.instructions, jevQ.instructions.prompt);
+  assert.deepEqual(JSON.parse(body.input), {
+    state: jevRequest(step).state,
+    questions: {
+      move: { question: jevQ.instructions.question, options: jevQ.criteria },
+    },
+  });
+
+  // GPT answers { move, reason }: the move limited to the same legal moves.
+  const { format } = body.text;
+  assert.deepEqual(
+    format.schema.properties!.move.enum,
+    Object.keys(jevQ.criteria),
+  );
+});
+```
+
+By doing this, it was certain that either model would make a legal move 100% of
+the time, even if it's random or ridiculous. My code works out the legal moves,
+and the model only has to pick one. Which, not so coincidentally, is exactly the
+classifier / router job Jev is built for.
+
+<Figure
+  label="Figure 2."
+  caption="The fix. My rules engine lists every legal move (at most 218 in any position, well inside Jev's 255-option limit), and the model only judges between them. One call per move instead of up to eight."
+>
+  <svg viewBox="0 0 640 104">
+    <defs>
+      <marker id="jev-arrow-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0L10 5 0 10z" fill="#ff5a1f" />
+      </marker>
+    </defs>
+
+    <text x="24" y="26" className="d-m">AFTER - THE ENGINE LISTS, THE MODEL PICKS</text>
+
+    <rect x="24" y="40" width="208" height="52" rx="12" className="d-box o" pathLength="1" />
+    <text x="40" y="64" className="d-t dk">list the legal moves</text>
+    <text x="40" y="80" className="d-t sm" style={{ fill: 'rgba(10,10,12,.7)' }}>engine - at most 218</text>
+
+    <rect x="264" y="40" width="208" height="52" rx="12" className="d-box" pathLength="1" />
+    <text x="280" y="64" className="d-t">pick one, or score each</text>
+    <text x="280" y="80" className="d-t sm">model - judges only</text>
+
+    <rect x="504" y="40" width="112" height="52" rx="12" className="d-box" pathLength="1" />
+    <text x="520" y="70" className="d-t">play</text>
+
+    <line x1="232" y1="66" x2="264" y2="66" className="d-acc" pathLength="1" markerEnd="url(#jev-arrow-o)" />
+    <line x1="472" y1="66" x2="504" y2="66" className="d-acc" pathLength="1" markerEnd="url(#jev-arrow-o)" />
+
+  </svg>
+</Figure>
+
+<Figure
+  draw={false}
+  label="Figure 3."
+  caption="Two finished games after the fix, one in each node. Zero illegal tries in both."
+>
+  <img
+    src="/images/jev-vs-gpt-chess/game-over.webp"
+    width="928"
+    height="516"
+    alt="Two game-over panels. Left: GPT wins by checkmate in 21 moves, Jev $0.0046, GPT $0.043, illegal tries 0. Right: draw by threefold repetition in 33 moves, Jev $0.0023, GPT $0.033, illegal tries 0."
+    loading="lazy"
+  />
+</Figure>
+
+## Two nodes: choice and score
+
+And I also added two nodes: the first is **choice**, and the second is
+**score**, which is probability based. Both players in a game always play the
+same node, so the output they're held to is the same too.
+
+**Choice** is the one you've seen above: "Which move do you play?", pick one of
+the options. Jev hands back its pick, a probability for every option, and a
+confidence:
+
+```json title="jev - what comes back (move 31)"
+{
+  "answers": {
+    "move": {
+      "choice": "e2d1",
+      "probabilities": {
+        "e2d1": 0.66,
+        "e2e3": 0.05,
+        "e2f1": 0.04,
+        "a2a3": 0.02
+      },
+      "confidence": 0.65
+    }
+  },
+  "usage": { "input_tokens": 1916, "output_tokens": 210 }
+}
+```
+
+GPT, being a chat model, has to say why as well. Its answer is locked to a
+strict JSON schema, and `move` is an enum of the exact same option keys Jev got,
+so it can't wander off-list:
+
+```jsonc title="gpt - the answer schema, and what comes back (move 25)"
+// the schema
+{
+  "type": "object",
+  "properties": {
+    "move": { "type": "string", "description": "Which move do you play?", "enum": ["d7c7", "d7e7" /* …every legal move */] },
+    "reason": { "type": "string", "description": "Why you chose this move." }
+  },
+  "required": ["move", "reason"],
+  "additionalProperties": false
+}
+
+// the answer
+{
+  "move": "d7c7",
+  "reason": "The king is in the center with only a few legal king moves. Kc7 steps out of the d-file, avoids immediate tactics on the king, and keeps the position compact and defensible."
+}
+```
+
+**Score** flips it around. Instead of picking one move, the model rates every
+legal move from 0 (a blunder) to 4 (an excellent move), and the highest score
+gets played. The state is still the same; the question changes, and the scale
+comes along. For Jev, that's one Score question per legal move, all in a single
+request, and one score back per move:
+
+```jsonc title="jev - score question for a2-a3, and what comes back (move 13)"
+// one of these per legal move, all in the same request
+"a2a3": {
+  "type": "score",
+  "instructions": {
+    "prompt": "You are chess grandmaster, its your turn, look at the board and history and color and play the next move. The options are all your legal moves.",
+    "question": "How good is this move for you? Rate it on the scale.",
+    "move": "a3: white pawn a2-a3"
+  },
+  "criteria": [
+    "a blunder: loses material or the game",
+    "a weak move: gives the opponent the advantage",
+    "an ordinary move: keeps the position about equal",
+    "a good move: improves your position",
+    "an excellent move: wins material, gives mate or is clearly the best"
+  ]
+}
+
+// the answer: a score per move, the highest one is played
+{ "answers": { "d2g5": { "score": 2.26 }, "d2e3": { "score": 2.25 }, "d2f4": { "score": 2.22 } /* … */ } }
+```
+
+GPT gets the same question and the same scale, and has to come back with a
+number for every single legal move, plus its reasoning:
+
+```jsonc title="gpt - the answer schema, score node"
+{
+  "type": "object",
+  "properties": {
+    "scores": {
+      "type": "object",
+      "description": "How good is this move for you? Rate it on the scale. One score per move, from 0 (a blunder: loses material or the game) to 4 (an excellent move: wins material, gives mate or is clearly the best); decimals allowed.",
+      "properties": {
+        "d2g5": { "type": "number" },
+        "d2e3": { "type": "number" } /* …one per legal move */,
+      },
+      "required": ["d2g5", "d2e3" /* …every legal move */],
+      "additionalProperties": false,
+    },
+    "reason": {
+      "type": "string",
+      "description": "Your overall reasoning: why the best move scores highest.",
+    },
+  },
+  "required": ["scores", "reason"],
+  "additionalProperties": false,
+}
+```
+
+<Figure
+  draw={false}
+  label="Figure 4."
+  caption="Jev's call for 13.Bg5 in the score node. Every legal move landed between 1.50 and 2.26, and the top two were 0.01 apart. Bg5 got played, and lost the bishop."
+>
+  <img
+    src="/images/jev-vs-gpt-chess/jev-scores.webp"
+    width="1150"
+    height="294"
+    alt="Jev's logged call for white bishop d2 to g5. Scores for every legal move run from Bg5 2.26 and Be3 2.25 down to Qe1 1.50."
+    loading="lazy"
+  />
+</Figure>
+
+One fun detail: Jev never writes a single word. The "reason" you see next to
+Jev's moves in my logs is my app summarizing its numbers. GPT writes its own
+reasons, and we'll get to how much those are worth.
+
+## So, was it any good?
+
+But honestly, the games were not that impressive. Jev was definitely fast and
+cheap, as we all knew, but it was kinda at the same intelligence level as
+`gpt-5.4-mini`. GPT hung its queen in two of my recorded games (6…Qxd5?? 7.Qxd5,
+a free queen), and Jev once gave its queen away to a lone king. Grandmasters,
+both of them.
+
+So, I upped the game. I added a simulator that runs 10 games in parallel and
+then analyzes how each model performed.
+
+<Figure
+  draw={false}
+  label="Figure 5."
+  caption="Ten games in parallel, score node, 60-move limit, six minutes in. Game 6 went to Jev, game 9 to GPT, and almost everything else was heading for the move limit."
+>
+  <img
+    src="/images/jev-vs-gpt-chess/ten-boards.webp"
+    width="1442"
+    height="702"
+    alt="The simulator with ten Jev versus GPT games. The visible statuses read draw by move limit, draw by threefold repetition, Jev wins by checkmate and GPT wins by checkmate."
+    loading="lazy"
+  />
+</Figure>
+
+The results were almost a tie. Most games were either a draw or hit the max move
+limit, and Jev won one game, same as `gpt-5.4-mini`.
+
+<Stats>
+  <Stat value="10" label="games in parallel" />
+  <Stat value="1 – 1" label="wins, Jev – GPT" />
+  <Stat value="8" label="draws" />
+  <Stat value="12×" label="cheaper for Jev" tone="accent" />
+</Stats>
+
+<Figure
+  draw={false}
+  label="Figure 6."
+  caption="The simulator's verdict: level on points, 5 – 5. The middle chart is material through every game, Jev minus GPT, and on the right is what each game cost: GPT in blue, Jev in orange."
+>
+  <img
+    src="/images/jev-vs-gpt-chess/ten-verdict.webp"
+    width="1442"
+    height="544"
+    alt="Simulator summary for ten finished games: level on points 5 to 5, Jev ahead on material by 0.8 per game, 1 Jev win, 8 draws, 1 GPT win, total cost $1.24 with Jev $0.092 and GPT $1.15, think time 2.2 seconds for Jev and 3.9 for GPT."
+    loading="lazy"
+  />
+</Figure>
+
+A few things stood out.
+
+**Nobody could close out a game.** 7 of the 10 games ran into the 60-move
+limit, one was a threefold repetition, and only 2 ended in checkmate. Jev
+finished +0.8 material per game on average, but a lead you can't convert is
+just a draw with extra steps. My favorite: in game 3, GPT promoted a pawn to a
+queen on move 60 of 60, and the game ended in a draw right there. Impeccable
+timing.
+
+**Jev loves a check.** It gave 69 checks against GPT's 40, and made more
+captures too (128 vs 112). In my earlier games, plenty of those checks just
+handed the checking piece over. Check first, think later.
+
+<Figure
+  draw={false}
+  label="Figure 7."
+  caption="Both sides, same number of moves, same points. Jev checks a lot more and captures a bit more; neither of them knows how to finish."
+>
+  <img
+    src="/images/jev-vs-gpt-chess/ten-table.webp"
+    width="1442"
+    height="292"
+    alt="Per-side table for the ten games: points 5 each, won drawn lost 1, 8, 1 each, 526 moves each, captures 128 for Jev and 112 for GPT, checks 69 for Jev and 40 for GPT. How the games ended: move limit 7, checkmate 2, threefold repetition 1."
+    loading="lazy"
+  />
+</Figure>
+
+**GPT's reasons sound great, but don't trust them.** Every GPT move comes with a
+neat little explanation, and sometimes it's describing a different board. The
+best one explains that its king is in check from the other king, which, last I
+checked, isn't a thing. Jev writes no text at all, so at least it can't lie to
+you.
+
+<Figure
+  draw={false}
+  label="Figure 8."
+  caption="GPT's call for 30…Ke7, in a game where it was about nine points of material up. A king can't give check, and the reason still sounds perfectly confident."
+>
+  <img
+    src="/images/jev-vs-gpt-chess/gpt-reason.webp"
+    width="1144"
+    height="250"
+    alt="GPT's logged call for black king d7 to e7. The reason reads: the king is currently in check from White's king on e2, so the safest and legal response is to move out of check."
+    loading="lazy"
+  />
+</Figure>
+
+**Jev is way cheaper, and faster.** Those 10 games cost $0.092 for Jev against
+$1.15 for GPT, about 12× cheaper, and Jev took 2.2 seconds a move against GPT's
+3.9.
+
+Ten games isn't a benchmark, so take the tie with a pinch of salt. But it paints
+a pretty clear picture.
+
+## To conclude
+
+It's best that we don't overhype Jev, but at the same time, failing to realize
+its true potential would be naive.
+
+Give it a list of options and it picks between them fast and dirt cheap. That's
+the router, and here it held its own against GPT for about a twelfth of the
+price. Ask it to come up with the options itself, and it falls apart. So give it
+the right job, and give it the underlying homies.
+
+Catch the demo live [here](https://agent-chess-sim.netlify.app/), and the code
+[here](https://github.com/MD-AZMAL/agent-chess-sim).

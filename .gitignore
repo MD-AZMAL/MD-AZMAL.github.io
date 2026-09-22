@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output — GitHub Actions builds this on every push, so it is never committed
+dist/
+.ssr/
+*.tsbuildinfo
+
+# Vite / tooling caches
+.vite/
+node_modules/.vite/
+.cache/
+
+# Design references used to build this site.
+# Delete this line if you'd rather keep the original mockups in version control.
+input/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment — this site is fully static and needs no secrets, but just in case
+.env
+.env.*
+!.env.example
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+CLAUDE.md
